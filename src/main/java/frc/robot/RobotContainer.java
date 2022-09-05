@@ -4,42 +4,44 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.Button;
+import frc.robot.commands.intake.IntakeDeployCommand;
+import frc.robot.commands.intake.IntakeRetractCommand;
+import frc.robot.commands.intake.IntakeRunCommand;
+import frc.robot.subsystems.Intake;
+import frc.robot.util.ControllerWrapper;
 
 public class RobotContainer {
 
-	static class TestBoard extends SubsystemBase {
-		WPI_TalonFX testFalcon = new WPI_TalonFX(10);
-		CANSparkMax testNeo = new CANSparkMax(20, MotorType.kBrushless);
+	private final Intake intake = new Intake();
+	private final ControllerWrapper controller = new ControllerWrapper(0);
 
-		public void setOpenLoop(double value) {
-			testFalcon.set(ControlMode.PercentOutput, value);
-			testNeo.set(value);
-		}
+	private final Button intakeButton = new Button(controller::getLeftBumperButton);
+	private final Button intakeRetractButton = new Button(controller::getRightBumperButton);
+	private final Button intakeRunButton = new Button(controller::getTriangleButton);
+
+	public RobotContainer() {
+		configureButtonBindings();
+
 	}
 
-  	public RobotContainer() {
-    	configureButtonBindings();
+	private void configureButtonBindings() {
+		intakeButton.whenPressed(new SequentialCommandGroup(
+				new IntakeDeployCommand(intake)
+		));
 
-		TestBoard testBoard = new TestBoard();
-		testBoard.setDefaultCommand(new RunCommand(() -> testBoard.setOpenLoop(0.1f), testBoard));
+		intakeRetractButton.whenPressed(new SequentialCommandGroup(
+				new IntakeRetractCommand(intake)
+		));
+
+		intakeRunButton.whileHeld(new IntakeRunCommand(intake));
+
 	}
-  	
-	private void configureButtonBindings() {}
 
-  	public Command getAutonomousCommand() {
-    	return null;
-  	}
+	public Command getAutonomousCommand() {
+		return null;
+	}
 }
