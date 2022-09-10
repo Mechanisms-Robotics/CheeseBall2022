@@ -6,11 +6,12 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Button;
+import frc.robot.commands.feeder.FeederRunCommand;
 import frc.robot.commands.intake.IntakeDeployCommand;
 import frc.robot.commands.intake.IntakeRetractCommand;
 import frc.robot.commands.intake.IntakeRunCommand;
-import frc.robot.commands.processor.ProcessorOffCommand;
-import frc.robot.commands.processor.ProcessorOnCommand;
+import frc.robot.commands.processor.ProcessorRunCommand;
+import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Processor;
 import frc.robot.util.ControllerWrapper;
@@ -20,6 +21,7 @@ public class RobotContainer {
 
 	private final Intake intake = new Intake();
 	private final Processor processor = new Processor();
+	private final Feeder feeder = new Feeder();
 
 	private final ControllerWrapper controller = new ControllerWrapper(0);
 
@@ -40,10 +42,8 @@ public class RobotContainer {
 
 		intakeRunButton.toggleWhenPressed(new ParallelCommandGroup(
 				new IntakeRunCommand(intake),
-				new StartEndScheduleCommand(
-						new ProcessorOnCommand(processor),
-						new ProcessorOffCommand(processor)
-				)
+				new ProcessorRunCommand(processor),
+				new FeederRunCommand(feeder)
 		));
 
 	}
