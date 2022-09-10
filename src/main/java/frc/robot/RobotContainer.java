@@ -4,22 +4,26 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.intake.IntakeDeployCommand;
 import frc.robot.commands.intake.IntakeRetractCommand;
 import frc.robot.commands.intake.IntakeRunCommand;
+import frc.robot.commands.processor.ProcessorOffCommand;
+import frc.robot.commands.processor.ProcessorOnCommand;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Processor;
 import frc.robot.util.ControllerWrapper;
+import frc.robot.util.StartEndScheduleCommand;
 
 public class RobotContainer {
 
 	private final Intake intake = new Intake();
+	private final Processor processor = new Processor();
+
 	private final ControllerWrapper controller = new ControllerWrapper(0);
 
-	private final Button intakeButton = new Button(controller::getLeftBumperButton);
+	private final Button intakeDeployButton = new Button(controller::getLeftBumperButton);
 	private final Button intakeRetractButton = new Button(controller::getRightBumperButton);
 	private final Button intakeRunButton = new Button(controller::getTriangleButton);
 
@@ -29,15 +33,18 @@ public class RobotContainer {
 	}
 
 	private void configureButtonBindings() {
-		intakeButton.whenPressed(new SequentialCommandGroup(
-				new IntakeDeployCommand(intake)
-		));
 
-		intakeRetractButton.whenPressed(new SequentialCommandGroup(
-				new IntakeRetractCommand(intake)
-		));
+		intakeDeployButton.whenPressed(new IntakeDeployCommand(intake));
 
-		intakeRunButton.whileHeld(new IntakeRunCommand(intake));
+		intakeRetractButton.whenPressed(new IntakeRetractCommand(intake));
+
+		intakeRunButton.toggleWhenPressed(new ParallelCommandGroup(
+				new IntakeRunCommand(intake),
+				new StartEndScheduleCommand(
+						new ProcessorOnCommand(processor),
+						new ProcessorOffCommand(processor)
+				)
+		));
 
 	}
 

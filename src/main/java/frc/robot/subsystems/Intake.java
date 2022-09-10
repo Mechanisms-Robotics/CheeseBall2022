@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
+import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -14,19 +15,13 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Intake extends SubsystemBase {
 
-	public enum State {
-		Deployed,
-		Stowed
-	}
-
 	private final static double INTAKE_SPEED = 0.2; // percent
 
 	private static final TalonFXConfiguration INTAKE_MOTOR_CONFIG = new TalonFXConfiguration();
-//	private WPI_TalonFX intakeMotor = new WPI_TalonFX(20);
-	private CANSparkMax intakeMotor = new CANSparkMax(21, CANSparkMaxLowLevel.MotorType.kBrushless);
-	private DoubleSolenoid leftActuator = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
-	private DoubleSolenoid rightActuator = new DoubleSolenoid(PneumaticsModuleType.REVPH, 15, 3);
-	private Compressor compressor = new Compressor(2, PneumaticsModuleType.REVPH);
+	private WPI_TalonFX intakeMotor = new WPI_TalonFX(20);
+	private DoubleSolenoid leftActuator = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+	private DoubleSolenoid rightActuator = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+
 	private boolean deployed = false;
 	private boolean running = false;
 
@@ -39,8 +34,7 @@ public class Intake extends SubsystemBase {
 	}
 
 	private void setWheelOpenLoop(double percentOutput) {
-//		intakeMotor.set(ControlMode.PercentOutput, percentOutput);
-		intakeMotor.set(percentOutput);
+		intakeMotor.set(ControlMode.PercentOutput, percentOutput);
 	}
 
 	public void intake() {
@@ -52,15 +46,14 @@ public class Intake extends SubsystemBase {
 		leftActuator.set(Value.kForward);
 		rightActuator.set(Value.kForward);
 		deployed = true;
-		SmartDashboard.putString("state", rightActuator.get().toString());
+		SmartDashboard.putString("right actuator state", rightActuator.get().toString());
 	}
 
 	public void retract() {
 		leftActuator.set(Value.kReverse);
 		rightActuator.set(Value.kReverse);
-		rightActuator.toggle();
 		deployed = false;
-		SmartDashboard.putString("state", rightActuator.get().toString());
+		SmartDashboard.putString("right actuator state", rightActuator.get().toString());
 	}
 
 	public void stop() {
