@@ -4,12 +4,12 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Intake;
 
 /** This command deploys the intake and then runs it */
-public class DeployIntake extends CommandBase {
+public class DeployIntakeCommand extends CommandBase {
   // Instance of Intake subsystem
   private final Intake intake;
 
-  /** Constructor of a DeployIntake command */
-  public DeployIntake(Intake intake) {
+  /** Constructor of a DeployIntakeCommand */
+  public DeployIntakeCommand(Intake intake) {
     // Set intake
     this.intake = intake;
 

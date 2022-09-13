@@ -3,10 +3,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
-import frc.robot.commands.intake.DeployIntake;
-import frc.robot.commands.intake.RetractIntake;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.StopIntakingCommand;
 import frc.robot.commands.swerve.DriveTeleopCommand;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Processor;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.ControllerWrapper;
 
@@ -15,6 +16,7 @@ public class RobotContainer {
   // Subsystems
   private final Swerve swerve = new Swerve();
   private final Intake intake = new Intake();
+  private final Processor processor = new Processor();
 
   // Controller
   private final ControllerWrapper driverController = new ControllerWrapper(0);
@@ -36,11 +38,13 @@ public class RobotContainer {
 
   /** Configures all the button bindings */
   private void configureButtonBindings() {
-    // When the toggleIntakeButton is pressed, either run the DeployIntake or RetractIntake command
-    // depending on what state the intake is currently in
+    // When the toggleIntakeButton is pressed, either run the IntakeCommand or StopIntakingCommand
+    // depending on whether the intake is currently deployed or not
     toggleIntakeButton.whenPressed(
         new ConditionalCommand(
-            new DeployIntake(intake), new RetractIntake(intake), intake::isRetracted));
+            new IntakeCommand(intake, processor),
+            new StopIntakingCommand(intake, processor),
+            intake::isRetracted));
   }
 
   /** Configures the default commands for each subsystem */

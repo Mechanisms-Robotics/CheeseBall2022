@@ -4,12 +4,12 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Intake;
 
 /** This command retracts the intake and then stops it */
-public class RetractIntake extends CommandBase {
+public class RetractIntakeCommand extends CommandBase {
   // Instance of Intake subsystem
   private final Intake intake;
 
-  /** Constructor of a RetractIntake command */
-  public RetractIntake(Intake intake) {
+  /** Constructor of a RetractIntakeCommand */
+  public RetractIntakeCommand(Intake intake) {
     // Set intake
     this.intake = intake;
 
