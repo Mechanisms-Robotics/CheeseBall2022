@@ -56,16 +56,16 @@ public class RobotContainer {
     // depending on whether the superstructure is currently intaking
     toggleIntakeButton.whenPressed(
         new ConditionalCommand(
-            new IntakeCommand(superstructure),
             new StopIntakingCommand(superstructure),
+            new IntakeCommand(superstructure),
             superstructure::isIntaking));
 
     // When the toggleShootButton is pressed, either run the ShootCommand or StopShootingCommand
     // depending on whether the superstructure is currently shooting
     toggleShootButton.whenPressed(
         new ConditionalCommand(
-            new ShootCommand(superstructure),
             new StopShootingCommand(superstructure),
+            new ShootCommand(superstructure),
             superstructure::isShooting));
   }
 
