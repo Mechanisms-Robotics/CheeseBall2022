@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Intake extends SubsystemBase {
   // Intake speeds
   private static final double INTAKE_SPEED = 0.5; // percent
-  private static final double OUTTAKE_SPEED = -0.25; // percent
 
   // Intake actuator positions
   private static final DoubleSolenoid.Value INTAKE_DEPLOYED = Value.kReverse;
@@ -51,6 +50,9 @@ public class Intake extends SubsystemBase {
     INTAKE_MOTOR_CONFIGURATION.forwardSoftLimitEnable = false;
   }
 
+  // Retracted flag
+  private boolean retracted = true;
+
   /** Constructor for the Intake class */
   public Intake() {
     // Configure intake motor
@@ -67,24 +69,24 @@ public class Intake extends SubsystemBase {
   public void deploy() {
     // Set the intake actuator to the INTAKE_DEPLOYED position
     intakeActuator.set(INTAKE_DEPLOYED);
+
+    // Set the retracted flag to false
+    this.retracted = false;
   }
 
   /** Retracts the intake */
   public void retract() {
     // Set the intake actuator to the INTAKE_RETRACTED position
     intakeActuator.set(INTAKE_RETRACTED);
+
+    // Set the retracted flag to true
+    this.retracted = true;
   }
 
   /** Runs the intake */
   public void intake() {
     // Set the intake motor to run at INTAKE_SPEED
     intakeMotor.set(ControlMode.PercentOutput, INTAKE_SPEED);
-  }
-
-  /** Runs the intake in reverse */
-  public void outtake() {
-    // Set the intake motor to run at OUTTAKE_SPEED
-    intakeMotor.set(ControlMode.PercentOutput, OUTTAKE_SPEED);
   }
 
   /** Stops the intake */
@@ -95,13 +97,13 @@ public class Intake extends SubsystemBase {
 
   /** Returns whether the intake is deployed or not */
   public boolean isDeployed() {
-    // Return if the intake actuator is in the INTAKE_DEPLOYED position
-    return intakeActuator.get() == INTAKE_DEPLOYED;
+    // Return the opposite value of the retracted flag
+    return !this.retracted;
   }
 
   /** Returns whether the intake is retracted or not */
   public boolean isRetracted() {
-    // Return the opposite of what isDeployed returns
-    return !isDeployed();
+    // Return value of the retracted flag
+    return this.retracted;
   }
 }

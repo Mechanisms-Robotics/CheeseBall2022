@@ -9,13 +9,15 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** This class contains all the code that controls the processor functionality */
 public class Processor extends SubsystemBase {
   // Processor speeds
   private static final double PROCESSOR_INTAKE_SPEED = 0.5;
-  private static final double PROCESSOR_OUTTAKE_SPEED = -0.5;
+  private static final double PROCESSOR_SLOW_INTAKE_SPEED = 0.25;
+  private static final double PROCESSOR_SHOOT_SPEED = 0.5;
 
   // Processor motor
   private final WPI_TalonFX processorMotor = new WPI_TalonFX(30);
@@ -41,6 +43,11 @@ public class Processor extends SubsystemBase {
     PROCESSOR_MOTOR_CONFIGURATION.forwardSoftLimitEnable = false;
   }
 
+  // Proximity sensors
+  private final DigitalInput processorSensor = new DigitalInput(0);
+  private final DigitalInput feederBottomSensor = new DigitalInput(1);
+  private final DigitalInput feederTopSensor = new DigitalInput(2);
+
   /** Constructor for the Processor class */
   public Processor() {
     // Configure processor motor
@@ -53,16 +60,30 @@ public class Processor extends SubsystemBase {
     processorMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
   }
 
-  /** Runs the processor */
+  /** Runs the processor differently depending on which proximity sensors are triggered */
   public void intake() {
-    // Set the processor motor to run at PROCESSOR_INTAKE_SPEED
-    processorMotor.set(ControlMode.PercentOutput, PROCESSOR_INTAKE_SPEED);
+    // Get the values of the proximity sensors
+    boolean feederTopSensorTriggered = !feederTopSensor.get();
+    boolean feederBottomSensorTriggered = !feederBottomSensor.get();
+    boolean processorSensorTriggered = !processorSensor.get();
+
+    // Check which sensors are triggered
+    if (!(feederTopSensorTriggered && feederBottomSensorTriggered)) {
+      // If the robot doesn't have two balls yet run processor at PROCESSOR_INTAKE_SPEED
+      processorMotor.set(ControlMode.PercentOutput, PROCESSOR_INTAKE_SPEED);
+    } else if (!processorSensorTriggered) {
+      // If the robot has two but not three balls yet run processor at PROCESSOR_SLOW_INTAKE_SPEED
+      processorMotor.set(ControlMode.PercentOutput, PROCESSOR_SLOW_INTAKE_SPEED);
+    } else {
+      // If the robot has three balls stop the processor
+      processorMotor.set(ControlMode.PercentOutput, 0.0);
+    }
   }
 
-  /** Runs the processor in reverse */
-  public void outtake() {
-    // Set the processor motor to runt at PROCESSOR_OUTTAKE_SPEED
-    processorMotor.set(ControlMode.PercentOutput, PROCESSOR_OUTTAKE_SPEED);
+  /** Runs the processor at it's shooting speed */
+  public void shoot() {
+    // Set the processor motor to run at PROCESSOR_SHOOT_SPEED
+    processorMotor.set(ControlMode.PercentOutput, PROCESSOR_SHOOT_SPEED);
   }
 
   /** Stops the processor */
