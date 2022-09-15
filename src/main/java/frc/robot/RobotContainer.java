@@ -4,16 +4,20 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
+import frc.robot.commands.AimTurretCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.PoseEstimateCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.StopIntakingCommand;
 import frc.robot.commands.StopShootingCommand;
 import frc.robot.commands.swerve.DriveTeleopCommand;
 import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.GoalTracker;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Processor;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Turret;
 import frc.robot.util.ControllerWrapper;
 
 /** This class contains all the subsystems, command bindings, and button bindings */
@@ -23,9 +27,13 @@ public class RobotContainer {
   private final Intake intake = new Intake();
   private final Processor processor = new Processor();
   private final Feeder feeder = new Feeder();
+  private final Turret turret = new Turret();
 
   // Superstructure
   private final Superstructure superstructure = new Superstructure(intake, processor, feeder);
+
+  // Goal Tracker
+  public final GoalTracker goalTracker = new GoalTracker();
 
   // Controller
   private final ControllerWrapper driverController = new ControllerWrapper(0);
@@ -78,6 +86,14 @@ public class RobotContainer {
             driverController::getLeftJoystickY,
             driverController::getRightJoystickX,
             swerve));
+
+    // Set the default goal tracker command to a PoseEstimateCommand
+    goalTracker.setDefaultCommand(
+        new PoseEstimateCommand(
+            goalTracker, swerve.poseEstimator, turret::getAngle, swerve::getHeading));
+
+    // Set the default turret command to an AimTurretCommand
+    turret.setDefaultCommand(new AimTurretCommand(turret, swerve::getPose));
   }
 
   /** Returns the command to run during autonomous */
