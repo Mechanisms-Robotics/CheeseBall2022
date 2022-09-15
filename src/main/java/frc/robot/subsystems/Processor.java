@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** This class contains all the code that controls the processor functionality */
@@ -58,6 +59,18 @@ public class Processor extends SubsystemBase {
     // CAN bus utilization optimization
     processorMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
     processorMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
+  }
+
+  /** Runs periodically and outputs the values of the proximity sensors to SmartDashboard */
+  @Override
+  public void periodic() {
+    boolean processorSensorTriggered = !processorSensor.get();
+    boolean feederBottomSensorTriggered = !feederBottomSensor.get();
+    boolean feederTopSensorTriggered = !feederTopSensor.get();
+
+    SmartDashboard.putBoolean("Processor Sensor", processorSensorTriggered);
+    SmartDashboard.putBoolean("Feeder Bottom Sensor", feederBottomSensorTriggered);
+    SmartDashboard.putBoolean("Feeder Top Sensor", feederTopSensorTriggered);
   }
 
   /** Runs the processor differently depending on which proximity sensors are triggered */

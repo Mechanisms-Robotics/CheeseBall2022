@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Units;
 
@@ -77,6 +78,13 @@ public class Turret extends SubsystemBase {
 
     // CAN bus utilization optimization
     turretMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
+  }
+
+  /** Runs periodically and puts the current and desired turret angle on the SmartDashboard */
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("Turret Angle", Math.toDegrees(getAngle()));
+    SmartDashboard.putNumber("Desired Turret Angle", Math.toDegrees(desiredAngle));
   }
 
   /** Aims the turret at some desired angle */

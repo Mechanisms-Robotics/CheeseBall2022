@@ -13,8 +13,10 @@ import frc.robot.commands.StopShootingCommand;
 import frc.robot.commands.swerve.DriveTeleopCommand;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.GoalTracker;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Processor;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
@@ -28,6 +30,8 @@ public class RobotContainer {
   private final Processor processor = new Processor();
   private final Feeder feeder = new Feeder();
   private final Turret turret = new Turret();
+  private final Shooter shooter = new Shooter();
+  private final Hood hood = new Hood();
 
   // Superstructure
   private final Superstructure superstructure = new Superstructure(intake, processor, feeder);
