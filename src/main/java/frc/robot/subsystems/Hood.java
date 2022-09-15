@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.startupCanTimeout;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -10,6 +11,9 @@ import com.ctre.phoenix.motorcontrol.can.SlotConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Units;
 
@@ -25,6 +29,8 @@ public class Hood extends SubsystemBase {
   private static final double HOOD_FORWARD_LIMIT = Math.toRadians(29.0); // 29 degrees
   private static final double HOOD_REVERSE_LIMIT = Math.toRadians(0.0); // 0 degrees
   private static final double HOOD_ALLOWABLE_ERROR = Math.toDegrees(0.5); // 0.5 degrees
+  private static final double HOOD_ANGLE_LOBF_SLOPE = 3.06;
+  private static final double HOOD_ANGLE_LOBF_INTERCEPT = 16.27;
 
   // Hood motor
   private final WPI_TalonFX hoodMotor = new WPI_TalonFX(70);
@@ -63,7 +69,10 @@ public class Hood extends SubsystemBase {
   }
 
   // Hood zeroed flag
-  private boolean hoodZeroed = false;
+  private boolean zeroed = false;
+
+  // Desired angle
+  private double desiredAngle = 0.0;
 
   /** Constructor for the Hood class */
   public Hood() {
@@ -75,5 +84,50 @@ public class Hood extends SubsystemBase {
 
     // CAN bus utilization optimization
     hoodMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
+  }
+
+  /** Runs periodically and puts the current and desired hood angle on the SmartDashboard */
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("Hood Angle", Math.toDegrees(getAngle()));
+    SmartDashboard.putNumber("Desired Hood Angle", Math.toDegrees(desiredAngle));
+  }
+
+  /** Aims the hood at a calculated angle based on the range to the target */
+  public void aim(double range) {
+    // Check if the turret has been zeroed
+    if (!this.zeroed) {
+      // If it hasn't, return
+      return;
+    }
+
+    // Set desiredAngle to the clamped value
+    this.desiredAngle =
+        MathUtil.clamp(
+            Math.toRadians(HOOD_ANGLE_LOBF_SLOPE * range + HOOD_ANGLE_LOBF_INTERCEPT),
+            HOOD_REVERSE_LIMIT,
+            HOOD_FORWARD_LIMIT);
+
+    // PID the hood motor to the desired position
+    hoodMotor.set(ControlMode.Position, Units.radsToFalcon(this.desiredAngle, HOOD_GEAR_RATIO));
+  }
+
+  /** Gets the current angle of the hood in rads */
+  public double getAngle() {
+    // Return the current angle of the hood in radians
+    return Units.falconToRads(hoodMotor.getSelectedSensorPosition(), HOOD_GEAR_RATIO);
+  }
+
+  /** Zeros the hood, allowing it to be run */
+  public void zero() {
+    // Check if the hood has already been zeroed
+    if (this.zeroed) {
+      // If it has, return
+      return;
+    }
+
+    // Zero the hood motor encoder and set the zeroed flag to true
+    hoodMotor.setSelectedSensorPosition(0.0);
+    this.zeroed = true;
   }
 }

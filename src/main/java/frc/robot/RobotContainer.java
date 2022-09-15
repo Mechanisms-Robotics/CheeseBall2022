@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
+import frc.robot.commands.AimHoodCommand;
+import frc.robot.commands.AimShooterCommand;
 import frc.robot.commands.AimTurretCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.PoseEstimateCommand;
@@ -33,11 +35,11 @@ public class RobotContainer {
   private final Shooter shooter = new Shooter();
   private final Hood hood = new Hood();
 
-  // Superstructure
-  private final Superstructure superstructure = new Superstructure(intake, processor, feeder);
-
   // Goal Tracker
   public final GoalTracker goalTracker = new GoalTracker();
+
+  // Superstructure
+  private final Superstructure superstructure = new Superstructure(intake, processor, feeder);
 
   // Controller
   private final ControllerWrapper driverController = new ControllerWrapper(0);
@@ -98,6 +100,12 @@ public class RobotContainer {
 
     // Set the default turret command to an AimTurretCommand
     turret.setDefaultCommand(new AimTurretCommand(turret, swerve::getPose));
+
+    // Set the default shooter command to an AimShooterCommand
+    shooter.setDefaultCommand(new AimShooterCommand(shooter, swerve::getPose));
+
+    // Set the default hood command to an AimHoodCommand
+    hood.setDefaultCommand(new AimHoodCommand(hood, swerve::getPose));
   }
 
   /** Returns the command to run during autonomous */

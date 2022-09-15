@@ -2,21 +2,27 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.startupCanTimeout;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.SlotConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.Units;
 
 /** This class contains all the code that controls the shooter functionality */
 public class Shooter extends SubsystemBase {
   // Shooter constants
   private static final double SHOOTER_GEAR_RATIO = (64.0 / 42.0); // 1.52:1 reduction
+  private static final double SHOOTER_RPM_LOBF_SLOPE = 127.59;
+  private static final double SHOOTER_RPM_LOBF_INTERCEPT = 1030.58;
 
   // Shooter motors
   private final WPI_TalonFX shooterMotor = new WPI_TalonFX(60);
@@ -67,5 +73,24 @@ public class Shooter extends SubsystemBase {
 
     shooterFollowerMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
     shooterFollowerMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
+  }
+
+  /** Runs periodically and puts the current shooter RPM on the SmartDashboard */
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("Shooter RPM", getRPM());
+  }
+
+  /** Runs the shooter at a calculated RPM given a range to the target */
+  public void shoot(double range) {
+    double velocity = SHOOTER_RPM_LOBF_SLOPE * range + SHOOTER_RPM_LOBF_INTERCEPT;
+
+    // Run shooter motor at the calculated velocity
+    shooterMotor.set(ControlMode.Velocity, Units.RPMToFalcon(velocity, SHOOTER_GEAR_RATIO));
+    shooterFollowerMotor.set(TalonFXControlMode.Follower, 60);
+  }
+
+  private double getRPM() {
+    return Units.falconToRPM(shooterMotor.getSelectedSensorVelocity(), SHOOTER_GEAR_RATIO);
   }
 }
