@@ -1,0 +1,159 @@
+{
+  "HALProvider": {
+    "Other Devices": {
+      "Talon FX[20]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Feeder": "Subsystem",
+      "/LiveWindow/GoalTracker": "Subsystem",
+      "/LiveWindow/Hood": "Subsystem",
+      "/LiveWindow/Intake": "Subsystem",
+      "/LiveWindow/Processor": "Subsystem",
+      "/LiveWindow/Shooter": "Subsystem",
+      "/LiveWindow/Superstructure": "Subsystem",
+      "/LiveWindow/Swerve/Swerve Drive": "Subsystem",
+      "/LiveWindow/Turret": "Subsystem",
+      "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
+      "/LiveWindow/Ungrouped/DigitalInput[1]": "Digital Input",
+      "/LiveWindow/Ungrouped/DigitalInput[2]": "Digital Input",
+      "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[2]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[3]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[4]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[5]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[6]": "PIDController",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/Ungrouped/Talon FX [20]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [30]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [40]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [50]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [60]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [61]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [70]": "Motor Controller",
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/SendableChooser[0]": "String Chooser"
+    },
+    "windows": {
+      "/SmartDashboard/Field": {
+        "Robot": {
+          "arrowColor": [
+            1.0,
+            1.0,
+            1.0,
+            255.0
+          ],
+          "color": [
+            0.0,
+            0.0,
+            0.0,
+            255.0
+          ],
+          "length": 0.9017000198364258,
+          "style": "Box/Image",
+          "width": 0.9017000198364258
+        },
+        "height": 8.229599952697754,
+        "image": "C:\\Users\\Jonathan Emery\\The Mechanisms\\field22.png",
+        "width": 16.459199905395508,
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/SendableChooser[0]": {
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables": {
+    "Shuffleboard": {
+      "Swerve": {
+        "Back Left Module": {
+          "open": true
+        }
+      }
+    },
+    "SmartDashboard": {
+      "Field": {
+        "open": true
+      },
+      "open": true
+    }
+  },
+  "Plot": {
+    "Plot <0>": {
+      "plots": [
+        {
+          "height": 572,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "Joystick[0] Axis[0]"
+            },
+            {
+              "color": [
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "Joystick[0] Axis[1]"
+            },
+            {
+              "color": [
+                0.3333333432674408,
+                0.658823549747467,
+                0.4078431725502014,
+                1.0
+              ],
+              "id": "Joystick[0] Axis[2]"
+            },
+            {
+              "color": [
+                0.7686275243759155,
+                0.30588236451148987,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "Joystick[0] Axis[3]"
+            },
+            {
+              "color": [
+                0.5058823823928833,
+                0.44705885648727417,
+                0.7019608020782471,
+                1.0
+              ],
+              "id": "Joystick[0] Axis[4]"
+            },
+            {
+              "color": [
+                0.5764706134796143,
+                0.4705882668495178,
+                0.3764706254005432,
+                1.0
+              ],
+              "id": "Joystick[0] Axis[5]"
+            }
+          ]
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    }
+  }
+}

@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Supplier;
 
 /** This class contains all the code that controls the feeder functionality */
 public class Feeder extends SubsystemBase {
@@ -41,12 +42,13 @@ public class Feeder extends SubsystemBase {
     FEEDER_MOTOR_CONFIGURATION.forwardSoftLimitEnable = false;
   }
 
-  // Proximity sensors
-  private final DigitalInput feederBottomSensor = new DigitalInput(1);
-  private final DigitalInput feederTopSensor = new DigitalInput(2);
+  // Proximity sensor value suppliers
+  private final Supplier<Boolean> feederBottomSensorSupplier;
+  private final Supplier<Boolean> feederTopSensorSupplier;
 
   /** Constructor for the Feeder class */
-  public Feeder() {
+  public Feeder(
+      Supplier<Boolean> feederBottomSensorSupplier, Supplier<Boolean> feederTopSensorSupplier) {
     // Configure feeder motor
     feederMotor.configAllSettings(FEEDER_MOTOR_CONFIGURATION, startupCanTimeout);
     feederMotor.setInverted(TalonFXInvertType.Clockwise);
@@ -55,13 +57,17 @@ public class Feeder extends SubsystemBase {
     // CAN bus utilization optimization
     feederMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
     feederMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 255);
+
+    // Set suppliers
+    this.feederBottomSensorSupplier = feederBottomSensorSupplier;
+    this.feederTopSensorSupplier = feederTopSensorSupplier;
   }
 
   /** Runs the feeder differently depending on which proximity sensors are triggered */
   public void intake() {
     // Get the values of the proximity sensors
-    boolean feederTopSensorTriggered = !feederTopSensor.get();
-    boolean feederBottomSensorTriggered = !feederBottomSensor.get();
+    boolean feederTopSensorTriggered = !feederBottomSensorSupplier.get();
+    boolean feederBottomSensorTriggered = !feederTopSensorSupplier.get();
 
     if (feederBottomSensorTriggered && !feederTopSensorTriggered) {
       // Set the feeder motor to run at FEEDER_INTAKE_SPEED

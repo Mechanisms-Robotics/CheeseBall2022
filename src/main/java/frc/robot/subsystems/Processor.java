@@ -46,8 +46,8 @@ public class Processor extends SubsystemBase {
 
   // Proximity sensors
   private final DigitalInput processorSensor = new DigitalInput(0);
-  private final DigitalInput feederBottomSensor = new DigitalInput(1);
-  private final DigitalInput feederTopSensor = new DigitalInput(2);
+  public final DigitalInput feederBottomSensor = new DigitalInput(1);
+  public final DigitalInput feederTopSensor = new DigitalInput(2);
 
   /** Constructor for the Processor class */
   public Processor() {

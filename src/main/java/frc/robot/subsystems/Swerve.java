@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -135,6 +136,9 @@ public class Swerve extends SubsystemBase {
   // Current acceleration
   private Translation2d acceleration = new Translation2d();
 
+  // Field2d Instance
+  private final Field2d field2d = new Field2d();
+
   /** Constructs the Swerve subsystem. */
   public Swerve() {
     poseEstimator =
@@ -149,6 +153,9 @@ public class Swerve extends SubsystemBase {
     gyro.setFusedHeading(0.0);
     this.register();
     this.setName("Swerve Drive");
+
+    // Put the Field2d instance on the SmartDashboard
+    SmartDashboard.putData("Field", this.field2d);
   }
 
   @Override
@@ -159,6 +166,9 @@ public class Swerve extends SubsystemBase {
         frModule.getState(),
         blModule.getState(),
         brModule.getState());
+
+    // Update Field2d with the latest pose estimate
+    field2d.setRobotPose(poseEstimator.getEstimatedPosition());
 
     // If we are currently running a trajectory
     if (trajectoryController.isFinished()) {
@@ -276,7 +286,9 @@ public class Swerve extends SubsystemBase {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
-  public Translation2d getAcceleration() { return this.acceleration; }
+  public Translation2d getAcceleration() {
+    return this.acceleration;
+  }
 
   /**
    * Gets the velocity of the drivetrain in m/s

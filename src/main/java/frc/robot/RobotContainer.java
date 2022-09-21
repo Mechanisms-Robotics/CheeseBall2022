@@ -38,7 +38,8 @@ public class RobotContainer {
   private final Swerve swerve = new Swerve();
   private final Intake intake = new Intake();
   private final Processor processor = new Processor();
-  private final Feeder feeder = new Feeder();
+  private final Feeder feeder =
+      new Feeder(processor.feederBottomSensor::get, processor.feederTopSensor::get);
   public final Turret turret = new Turret();
   private final Shooter shooter = new Shooter();
   public final Hood hood = new Hood();
@@ -63,7 +64,7 @@ public class RobotContainer {
 
   // Buttons
   private final Button gyroResetButton = new Button(driverController::getShareButton);
-  private final Button toggleIntakeButton = new Button(driverController::getLeftTriggerButton);
+  private final Button toggleIntakeButton = new Button(driverController::getXButton);
   private final Button shootButton = new Button(driverController::getRightTriggerButton);
   private final Button toggleSmartShootButton = new Button(driverController::getRightBumperButton);
 
