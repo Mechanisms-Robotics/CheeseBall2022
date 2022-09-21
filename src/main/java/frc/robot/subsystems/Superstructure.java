@@ -1,6 +1,11 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Supplier;
 
 /**
  * This class acts as a Superstructure for the intake, processor, and feeder so that we can both
@@ -12,16 +17,34 @@ public class Superstructure extends SubsystemBase {
   private final Processor processor;
   private final Feeder feeder;
 
+  // Suppliers
+  private final Supplier<Translation2d> accelerationSupplier;
+  private final Supplier<Pose2d> estimatedPoseSupplier;
+
+  // Goal position
+  private static final Pose2d GOAL_POSE =
+      new Pose2d(new Translation2d(8.23, 4.12), new Rotation2d());
+
   // Flags
   private boolean intaking = false;
   private boolean shooting = false;
+  private boolean smart = false;
 
   /** Constructor for the Superstructure class */
-  public Superstructure(Intake intake, Processor processor, Feeder feeder) {
+  public Superstructure(
+      Intake intake,
+      Processor processor,
+      Feeder feeder,
+      Supplier<Translation2d> accelerationSupplier,
+      Supplier<Pose2d> estimatedPoseSupplier) {
     // Set the subsystems
     this.intake = intake;
     this.processor = processor;
     this.feeder = feeder;
+
+    // Set suppliers
+    this.accelerationSupplier = accelerationSupplier;
+    this.estimatedPoseSupplier = estimatedPoseSupplier;
   }
 
   /** Deploys and runs the intake, then sets the intaking flag to true */
@@ -58,12 +81,36 @@ public class Superstructure extends SubsystemBase {
   public void shoot() {
     // Set the shooting flag to true
     this.shooting = true;
+
+    // Set the smart flag to false
+    this.smart = false;
   }
 
   /** Sets the shooting flag to false */
   public void stopShooting() {
     // Set the shooting flag to false
     this.shooting = false;
+
+    // Set the smart flag to false
+    this.smart = false;
+  }
+
+  /** Sets the shooting flag and smart flag to true */
+  public void smartShoot() {
+    // Set the shooting flag to true
+    this.shooting = true;
+
+    // Set the smart flag to true
+    this.smart = true;
+  }
+
+  /** Sets the shooting flag and smart flag to false */
+  public void stopSmartShooting() {
+    // Set the shooting flag to false
+    this.shooting = false;
+
+    // Set the smart flag to false
+    this.smart = false;
   }
 
   /**
@@ -77,14 +124,61 @@ public class Superstructure extends SubsystemBase {
       processor.intake();
       feeder.intake();
     } else if (this.shooting) {
-      // If the shooting flag is set, run the processor and feeder in shooting mode
-      processor.shoot();
-      feeder.shoot();
+      if (this.smart && hasGoodShot()) {
+        // If smart shooting is enabled and the robot has a good shot, run the processor and feeder
+        // in shooting mode
+        processor.shoot();
+        feeder.shoot();
+      } else if (!this.smart) {
+        // If shooting is enabled but the smart flag is not set, run the processor and feeder in
+        // shooting mode
+        processor.shoot();
+        feeder.shoot();
+      } else if (this.intaking) {
+        // If smart shooting is enabled and the robot does not have a good shot and intaking is
+        // enabled, run the processor and feeder in intake mode
+        processor.intake();
+        feeder.intake();
+      } else {
+        // If smart shooting is enabled and the robot does not have a good shot and intaking is
+        // disabled, stop the processor and feeder
+        processor.stop();
+        feeder.stop();
+      }
     } else {
       // If neither are set stop the processor and feeder
       processor.stop();
       feeder.stop();
     }
+  }
+
+  /** Checks if the robot has a good shot */
+  private boolean hasGoodShot() {
+    // Max acceleration and range for a good shot
+    double maxAccel = 1.0; // m/s^2
+    double maxRange = 5.0; // m
+
+    // Get the acceleration of the robot
+    Translation2d acceleration = accelerationSupplier.get();
+
+    // Check if the acceleration exceeds the maximum acceleration
+    if (acceleration.getNorm() > maxAccel) {
+      // If it does return false
+      return false;
+    }
+
+    // Get the estimated pose of the robot and calculate a range to the goal
+    Pose2d estimatedPose = estimatedPoseSupplier.get();
+    double range = new Transform2d(estimatedPose, GOAL_POSE).getTranslation().getNorm();
+
+    // Check if the range exceeds the maximum range
+    if (range > maxRange) {
+      // If it does return false
+      return false;
+    }
+
+    // If all tests have passed return true
+    return true;
   }
 
   /** Returns whether the superstructure is intaking or not */
@@ -97,5 +191,11 @@ public class Superstructure extends SubsystemBase {
   public boolean isShooting() {
     // Return the shooting flag
     return this.shooting;
+  }
+
+  /** Returns whether the superstructure is smart shooting or not */
+  public boolean isSmartShooting() {
+    // Check if both the shooting and smart flag are true, if so return true
+    return (this.shooting && this.smart);
   }
 }

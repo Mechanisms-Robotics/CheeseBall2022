@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.util.HeadingController;
 import frc.robot.util.TrajectoryController;
 
@@ -128,6 +129,12 @@ public class Swerve extends SubsystemBase {
 
   private Rotation2d gyroAngleAdjustment = Rotation2d.fromDegrees(0.0);
 
+  // Last ChassisSpeeds
+  private ChassisSpeeds lastSpeeds = new ChassisSpeeds();
+
+  // Current acceleration
+  private Translation2d acceleration = new Translation2d();
+
   /** Constructs the Swerve subsystem. */
   public Swerve() {
     poseEstimator =
@@ -160,6 +167,12 @@ public class Swerve extends SubsystemBase {
       desiredSpeeds = trajectoryController.calculate(getPose());
     }
     setSwerveStates(desiredSpeeds);
+
+    // Calculate current acceleration
+    acceleration =
+        new Translation2d(
+            (getSpeeds().vxMetersPerSecond - lastSpeeds.vxMetersPerSecond) * Constants.loopTime,
+            (getSpeeds().vyMetersPerSecond - lastSpeeds.vyMetersPerSecond) * Constants.loopTime);
 
     SmartDashboard.putNumber("Target vX", desiredSpeeds.vxMetersPerSecond);
     SmartDashboard.putNumber("Target vY", desiredSpeeds.vyMetersPerSecond);
@@ -262,6 +275,8 @@ public class Swerve extends SubsystemBase {
   public ChassisSpeeds getSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
+
+  public Translation2d getAcceleration() { return this.acceleration; }
 
   /**
    * Gets the velocity of the drivetrain in m/s

@@ -19,7 +19,7 @@ public class AimHoodCommand extends CommandBase {
   private final Supplier<ChassisSpeeds> chassisSpeedsSupplier;
   private final Supplier<Rotation2d> headingSupplier;
 
-  // Transforms
+  // Goal position
   private static final Pose2d GOAL_POSE =
       new Pose2d(new Translation2d(8.23, 4.12), new Rotation2d());
 

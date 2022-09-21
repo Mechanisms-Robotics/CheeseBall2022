@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.SmartShootCommand;
 import frc.robot.commands.StopShootingCommand;
 import frc.robot.commands.auto.AutoCommands.FollowPathCommand;
 import frc.robot.commands.auto.AutoCommands.ResetPose;
@@ -14,13 +15,13 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 
 /**
- * This is a 6 ball auto, that starts in the tarmac, picks up the two closest balls, shoots all
- * three, then grabs two from the HP station, drives over to the far ball and picks it up, and then
- * shoots all three
+ * This is a 6 ball auto that shoots balls while moving, it starts in the tarmac, picks up the two
+ * closest balls, then grabs two from the HP station, and then drives over to the far ball and picks
+ * it up
  */
-public class SixBallAutoCommand extends SequentialCommandGroup {
+public class SixBallMovingAutoCommand extends SequentialCommandGroup {
   // Max velocity and acceleration
-  private static final double MAX_VEL = 4.0; // m/s
+  private static final double MAX_VEL = 2.0; // m/s
   private static final double MAX_ACCEL = 4.0; // m/s
 
   // Paths
@@ -31,31 +32,21 @@ public class SixBallAutoCommand extends SequentialCommandGroup {
   private static final PathPlannerTrajectory hpToSixthBall =
       PathPlanner.loadPath("HPToSixthBall", MAX_VEL, MAX_ACCEL);
 
-  /** Constructor of a SixBallAutoCommand */
-  public SixBallAutoCommand(Swerve swerve, Superstructure superstructure) {
+  /** Constructor of a SixBallMovingAutoCommand */
+  public SixBallMovingAutoCommand(Swerve swerve, Superstructure superstructure) {
     addCommands(
-        // Reset the pose and start intaking
+        // Reset the pose, start intaking, and start smart shooting
         new ParallelCommandGroup(
-            new ResetPose(tarmacToThirdBall, swerve), new IntakeCommand(superstructure)),
-        // Follow the TarmacToThirdBall path for 2.64 seconds
+            new ResetPose(tarmacToThirdBall, swerve),
+            new IntakeCommand(superstructure),
+            new SmartShootCommand(superstructure)),
+        // Follow the TarmacToThirdBall path for 2.73 seconds
         new FollowPathCommand(tarmacToThirdBall, swerve),
-        // Start shooting
-        new ShootCommand(superstructure),
-        // Wait 2 seconds
-        new WaitCommand(2.0),
-        // Stop shooting
-        new StopShootingCommand(superstructure),
-        // Follow the ThirdBallToHP path for 1.99 seconds
+        // Follow the ThirdBallToHP path for 2.48 seconds
         new FollowPathCommand(thirdBallToHP, swerve),
         // Wait 1 second
         new WaitCommand(1.0),
-        // Follow the HPToSixthBall path for 2.40 seconds
-        new FollowPathCommand(hpToSixthBall, swerve),
-        // Start shooting
-        new ShootCommand(superstructure),
-        // Wait 2 seconds
-        new WaitCommand(2.0),
-        // Stop shooting
-        new StopShootingCommand(superstructure));
+        // Follow the HPToSixthBall path for 3.30 seconds
+        new FollowPathCommand(hpToSixthBall, swerve));
   }
 }

@@ -19,9 +19,11 @@ public class AimTurretCommand extends CommandBase {
   private final Supplier<ChassisSpeeds> chassisSpeedsSupplier;
   private final Supplier<Rotation2d> headingSupplier;
 
-  // Transforms
+  // Goal position
   private static final Pose2d GOAL_POSE =
       new Pose2d(new Translation2d(8.23, 4.12), new Rotation2d());
+
+  // Transforms
   private static final Rotation2d ROBOT_TO_TURRET = Rotation2d.fromDegrees(-90.0);
 
   // Air Time LOBF
