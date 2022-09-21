@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -12,6 +14,8 @@ import frc.robot.commands.PoseEstimateCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.StopIntakingCommand;
 import frc.robot.commands.StopShootingCommand;
+import frc.robot.commands.auto.FiveBallAutoCommand;
+import frc.robot.commands.auto.SixBallAutoCommand;
 import frc.robot.commands.swerve.DriveTeleopCommand;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.GoalTracker;
@@ -31,9 +35,9 @@ public class RobotContainer {
   private final Intake intake = new Intake();
   private final Processor processor = new Processor();
   private final Feeder feeder = new Feeder();
-  private final Turret turret = new Turret();
+  public final Turret turret = new Turret();
   private final Shooter shooter = new Shooter();
-  private final Hood hood = new Hood();
+  public final Hood hood = new Hood();
 
   // Goal Tracker
   public final GoalTracker goalTracker = new GoalTracker();
@@ -49,6 +53,15 @@ public class RobotContainer {
   private final Button toggleIntakeButton = new Button(driverController::getLeftTriggerButton);
   private final Button toggleShootButton = new Button(driverController::getRightTriggerButton);
 
+  // Autos Enumerator
+  private enum Autos {
+    FIVE_BALL,
+    SIX_BALL
+  }
+
+  // Auto Chooser
+  private final SendableChooser<Autos> autoChooser = new SendableChooser<>();
+
   /** Constructor for the RobotContainer class */
   public RobotContainer() {
     // Zero the heading of the swerve
@@ -59,6 +72,16 @@ public class RobotContainer {
 
     // Configure the default commands
     configureDefaultCommands();
+
+    // Add autonomous commands to auto chooser
+    autoChooser.addOption(Autos.FIVE_BALL.name(), Autos.FIVE_BALL);
+    autoChooser.addOption(Autos.SIX_BALL.name(), Autos.SIX_BALL);
+
+    // Set default auto chooser option
+    autoChooser.setDefaultOption(Autos.FIVE_BALL.name(), Autos.FIVE_BALL);
+
+    // Put the auto chooser on the SmartDashboard
+    SmartDashboard.putData(autoChooser);
   }
 
   /** Configures all the button bindings */
@@ -113,6 +136,13 @@ public class RobotContainer {
 
   /** Returns the command to run during autonomous */
   public Command getAutonomousCommand() {
-    return null;
+    switch (autoChooser.getSelected()) {
+      case FIVE_BALL:
+        return new FiveBallAutoCommand(swerve, superstructure);
+      case SIX_BALL:
+        return new SixBallAutoCommand(swerve, superstructure);
+      default:
+        return new FiveBallAutoCommand(swerve, superstructure);
+    }
   }
 }

@@ -38,6 +38,12 @@ public class Robot extends TimedRobot {
     // Turn on the Limelight LEDs
     this.robotContainer.goalTracker.turnOnLEDs();
 
+    // Zero the turret
+    this.robotContainer.turret.zero();
+
+    // Zero the hood
+    this.robotContainer.hood.zero();
+
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (autonomousCommand != null) {
@@ -67,6 +73,13 @@ public class Robot extends TimedRobot {
   /** Runs once at the start of test mode */
   @Override
   public void testInit() {
+    // Zero the turret
+    this.robotContainer.turret.zero();
+
+    // Zero the hood
+    this.robotContainer.hood.zero();
+
+    // Cancel all commands
     CommandScheduler.getInstance().cancelAll();
   }
 
