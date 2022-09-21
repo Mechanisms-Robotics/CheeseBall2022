@@ -21,8 +21,8 @@ import frc.robot.util.Units;
 public class Shooter extends SubsystemBase {
   // Shooter constants
   private static final double SHOOTER_GEAR_RATIO = (64.0 / 42.0); // 1.52:1 reduction
-  private static final double SHOOTER_RPM_LOBF_SLOPE = 127.59;
-  private static final double SHOOTER_RPM_LOBF_INTERCEPT = 1030.58;
+  private static final double SHOOTER_RPM_LOBF_SLOPE = 123.11;
+  private static final double SHOOTER_RPM_LOBF_INTERCEPT = 1080.82;
 
   // Shooter motors
   private final WPI_TalonFX shooterMotor = new WPI_TalonFX(60);

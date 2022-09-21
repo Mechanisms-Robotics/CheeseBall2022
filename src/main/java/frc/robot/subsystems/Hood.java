@@ -29,8 +29,8 @@ public class Hood extends SubsystemBase {
   private static final double HOOD_FORWARD_LIMIT = Math.toRadians(29.0); // 29 degrees
   private static final double HOOD_REVERSE_LIMIT = Math.toRadians(0.0); // 0 degrees
   private static final double HOOD_ALLOWABLE_ERROR = Math.toDegrees(0.5); // 0.5 degrees
-  private static final double HOOD_ANGLE_LOBF_SLOPE = 3.06;
-  private static final double HOOD_ANGLE_LOBF_INTERCEPT = 16.27;
+  private static final double HOOD_ANGLE_LOBF_SLOPE = 3.38;
+  private static final double HOOD_ANGLE_LOBF_INTERCEPT = 14.61;
 
   // Hood motor
   private final WPI_TalonFX hoodMotor = new WPI_TalonFX(70);

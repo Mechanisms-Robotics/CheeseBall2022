@@ -99,13 +99,16 @@ public class RobotContainer {
             goalTracker, swerve.poseEstimator, turret::getAngle, swerve::getHeading));
 
     // Set the default turret command to an AimTurretCommand
-    turret.setDefaultCommand(new AimTurretCommand(turret, swerve::getPose));
+    turret.setDefaultCommand(
+        new AimTurretCommand(turret, swerve::getPose, swerve::getSpeeds, swerve::getHeading));
 
     // Set the default shooter command to an AimShooterCommand
-    shooter.setDefaultCommand(new AimShooterCommand(shooter, swerve::getPose));
+    shooter.setDefaultCommand(
+        new AimShooterCommand(shooter, swerve::getPose, swerve::getSpeeds, swerve::getHeading));
 
     // Set the default hood command to an AimHoodCommand
-    hood.setDefaultCommand(new AimHoodCommand(hood, swerve::getPose));
+    hood.setDefaultCommand(
+        new AimHoodCommand(hood, swerve::getPose, swerve::getSpeeds, swerve::getHeading));
   }
 
   /** Returns the command to run during autonomous */
