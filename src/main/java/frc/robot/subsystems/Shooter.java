@@ -15,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.EpsilonUtil;
 import frc.robot.util.Units;
 
 /** This class contains all the code that controls the shooter functionality */
@@ -23,6 +24,7 @@ public class Shooter extends SubsystemBase {
   private static final double SHOOTER_GEAR_RATIO = (64.0 / 42.0); // 1.52:1 reduction
   private static final double SHOOTER_RPM_LOBF_SLOPE = 123.11;
   private static final double SHOOTER_RPM_LOBF_INTERCEPT = 1080.82;
+  private static final double SHOOTER_ERROR_EPSILON = 10; // RPM
 
   // Shooter motors
   private final WPI_TalonFX shooterMotor = new WPI_TalonFX(60);
@@ -52,6 +54,9 @@ public class Shooter extends SubsystemBase {
     SHOOTER_MOTOR_CONFIGURATION.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_2Ms;
     SHOOTER_MOTOR_CONFIGURATION.velocityMeasurementWindow = 4;
   }
+
+  // Desired RPM
+  double desiredRPM = 0.0;
 
   /** Constructor for the Shooter class */
   public Shooter() {
@@ -83,13 +88,20 @@ public class Shooter extends SubsystemBase {
 
   /** Runs the shooter at a calculated RPM given a range to the target */
   public void shoot(double range) {
-    double velocity = SHOOTER_RPM_LOBF_SLOPE * range + SHOOTER_RPM_LOBF_INTERCEPT;
+    // Calculate and set the desired RPM
+    this.desiredRPM = SHOOTER_RPM_LOBF_SLOPE * range + SHOOTER_RPM_LOBF_INTERCEPT;
 
     // Run shooter motor at the calculated velocity
-    shooterMotor.set(ControlMode.Velocity, Units.RPMToFalcon(velocity, SHOOTER_GEAR_RATIO));
+    shooterMotor.set(ControlMode.Velocity, Units.RPMToFalcon(this.desiredRPM, SHOOTER_GEAR_RATIO));
     shooterFollowerMotor.set(TalonFXControlMode.Follower, 60);
   }
 
+  /** Returns whether the shooter is within SHOOTER_EPSILON RPM of it's desired speed */
+  public boolean atDesiredSpeed() {
+    return EpsilonUtil.epsilonEquals(getRPM(), this.desiredRPM, SHOOTER_ERROR_EPSILON);
+  }
+
+  /** Returns the RPM of the shooter */
   private double getRPM() {
     return Units.falconToRPM(shooterMotor.getSelectedSensorVelocity(), SHOOTER_GEAR_RATIO);
   }

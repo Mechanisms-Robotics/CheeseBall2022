@@ -48,7 +48,15 @@ public class RobotContainer {
 
   // Superstructure
   private final Superstructure superstructure =
-      new Superstructure(intake, processor, feeder, swerve::getAcceleration, swerve::getPose);
+      new Superstructure(
+          intake,
+          processor,
+          feeder,
+          turret::atDesiredAngle,
+          hood::atDesiredAngle,
+          shooter::atDesiredSpeed,
+          swerve::getAcceleration,
+          swerve::getPose);
 
   // Controller
   private final ControllerWrapper driverController = new ControllerWrapper(0);

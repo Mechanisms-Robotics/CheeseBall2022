@@ -18,6 +18,9 @@ public class Superstructure extends SubsystemBase {
   private final Feeder feeder;
 
   // Suppliers
+  private final Supplier<Boolean> turretAtDesiredAngleSupplier;
+  private final Supplier<Boolean> hoodAtDesiredAngleSupplier;
+  private final Supplier<Boolean> shooterAtDesiredSpeedSupplier;
   private final Supplier<Translation2d> accelerationSupplier;
   private final Supplier<Pose2d> estimatedPoseSupplier;
 
@@ -35,6 +38,9 @@ public class Superstructure extends SubsystemBase {
       Intake intake,
       Processor processor,
       Feeder feeder,
+      Supplier<Boolean> turretAtDesiredAngleSupplier,
+      Supplier<Boolean> hoodAtDesiredAngleSupplier,
+      Supplier<Boolean> shooterAtDesiredSpeedSupplier,
       Supplier<Translation2d> accelerationSupplier,
       Supplier<Pose2d> estimatedPoseSupplier) {
     // Set the subsystems
@@ -43,6 +49,9 @@ public class Superstructure extends SubsystemBase {
     this.feeder = feeder;
 
     // Set suppliers
+    this.turretAtDesiredAngleSupplier = turretAtDesiredAngleSupplier;
+    this.hoodAtDesiredAngleSupplier = hoodAtDesiredAngleSupplier;
+    this.shooterAtDesiredSpeedSupplier = shooterAtDesiredSpeedSupplier;
     this.accelerationSupplier = accelerationSupplier;
     this.estimatedPoseSupplier = estimatedPoseSupplier;
   }
@@ -154,8 +163,26 @@ public class Superstructure extends SubsystemBase {
 
   /** Checks if the robot has a good shot */
   private boolean hasGoodShot() {
+    // Check if the turret is at it's desired angle
+    if (!turretAtDesiredAngleSupplier.get()) {
+      // If it isn't return false
+      return false;
+    }
+
+    // Check if the hood is at it's desired angle
+    if (!hoodAtDesiredAngleSupplier.get()) {
+      // If it isn't return false
+      return false;
+    }
+
+    // Check if the shooter is at it's desired RPM
+    if (!shooterAtDesiredSpeedSupplier.get()) {
+      // If it isn't return false
+      return false;
+    }
+
     // Max acceleration and range for a good shot
-    double maxAccel = 1.0; // m/s^2
+    double maxAccel = 0.1; // m/s^2
     double maxRange = 5.0; // m
 
     // Get the acceleration of the robot

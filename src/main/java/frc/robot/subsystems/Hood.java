@@ -15,6 +15,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.EpsilonUtil;
 import frc.robot.util.Units;
 
 /** This class contains all the code that controls the hood functionality */
@@ -31,6 +32,7 @@ public class Hood extends SubsystemBase {
   private static final double HOOD_ALLOWABLE_ERROR = Math.toDegrees(0.5); // 0.5 degrees
   private static final double HOOD_ANGLE_LOBF_SLOPE = 3.38;
   private static final double HOOD_ANGLE_LOBF_INTERCEPT = 14.61;
+  private static final double HOOD_ERROR_EPSILON = Math.toRadians(1.0); // 1 degree
 
   // Hood motor
   private final WPI_TalonFX hoodMotor = new WPI_TalonFX(70);
@@ -110,6 +112,11 @@ public class Hood extends SubsystemBase {
 
     // PID the hood motor to the desired position
     hoodMotor.set(ControlMode.Position, Units.radsToFalcon(this.desiredAngle, HOOD_GEAR_RATIO));
+  }
+
+  /** Returns whether the hood is within HOOD_ERROR_EPSILON degrees of it's desired angle */
+  public boolean atDesiredAngle() {
+    return EpsilonUtil.epsilonEquals(getAngle(), this.desiredAngle, HOOD_ERROR_EPSILON);
   }
 
   /** Gets the current angle of the hood in rads */
