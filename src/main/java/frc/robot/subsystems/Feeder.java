@@ -9,7 +9,7 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 
@@ -18,6 +18,9 @@ public class Feeder extends SubsystemBase {
   // Feeder speeds
   private static final double FEEDER_INTAKE_SPEED = 0.25;
   private static final double FEEDER_SHOOT_SPEED = 0.5;
+
+  // Eject time
+  private static final double EJECT_TIME = 0.375; // seconds
 
   // Feeder motor
   private final WPI_TalonFX feederMotor = new WPI_TalonFX(40);
@@ -45,6 +48,15 @@ public class Feeder extends SubsystemBase {
   // Proximity sensor value suppliers
   private final Supplier<Boolean> feederBottomSensorSupplier;
   private final Supplier<Boolean> feederTopSensorSupplier;
+
+  // Is ejecting flag
+  private boolean isEjecting = false;
+
+  // Eject timer
+  private final Timer ejectTimer = new Timer();
+
+  // Done ejecting flag
+  private boolean doneEjecting = false;
 
   /** Constructor for the Feeder class */
   public Feeder(
@@ -82,6 +94,56 @@ public class Feeder extends SubsystemBase {
   public void shoot() {
     // Set the feeder motor to run at FEEDER_SHOOT_SPEED
     feederMotor.set(ControlMode.PercentOutput, FEEDER_SHOOT_SPEED);
+  }
+
+  /** Runs the feeder for a set time in order to eject a ball */
+  public void eject() {
+    // Set the feeder motor to run at FEEDER_SHOOT_SPEED
+    feederMotor.set(ControlMode.PercentOutput, FEEDER_SHOOT_SPEED);
+
+    // Reset and start the eject timer
+    this.ejectTimer.reset();
+    this.ejectTimer.start();
+
+    // Set is ejecting flag to true
+    this.isEjecting = true;
+  }
+
+  /** Resets ejecting flags */
+  public void stopEjecting() {
+    // Set is ejecting flag to false
+    this.isEjecting = false;
+
+    // Set done ejecting flag to false
+    this.doneEjecting = false;
+  }
+
+  /** Runs periodically and contains the logic for timed ejecting */
+  @Override
+  public void periodic() {
+    // Check if the ejecting flag is set and if EJECT_TIME has elapsed
+    if (this.isEjecting && this.ejectTimer.hasElapsed(EJECT_TIME)) {
+      // Stop the feeder
+      this.stop();
+
+      // Stop the eject timer
+      this.ejectTimer.stop();
+
+      // Set done ejecting to true
+      this.doneEjecting = true;
+    }
+  }
+
+  /** Returns whether the feeder is currently ejecting */
+  public boolean isEjecting() {
+    // Return is ejecting flag
+    return this.isEjecting;
+  }
+
+  /** Returns whether the feeder is done ejecting */
+  public boolean isDoneEjecting() {
+    // Return the done ejecting flag
+    return this.doneEjecting;
   }
 
   /** Stops the feeder */

@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.Turret;
 import java.util.function.Supplier;
 
@@ -18,24 +19,15 @@ public class AimTurretCommand extends CommandBase {
   private final Supplier<Pose2d> estimatedPoseSupplier;
   private final Supplier<ChassisSpeeds> chassisSpeedsSupplier;
   private final Supplier<Rotation2d> headingSupplier;
-
-  // Goal position
-  private static final Pose2d GOAL_POSE =
-      new Pose2d(new Translation2d(8.23, 4.12), new Rotation2d());
-
-  // Transforms
-  private static final Rotation2d ROBOT_TO_TURRET = Rotation2d.fromDegrees(-90.0);
-
-  // Air Time LOBF
-  private static final double AIR_TIME_SLOPE = 0.07;
-  private static final double AIR_TIME_INTERCEPT = 0.77;
+  private final Supplier<Boolean> ejectSupplier;
 
   /** Constructor of an AimTurretCommand */
   public AimTurretCommand(
       Turret turret,
       Supplier<Pose2d> estimatedPoseSupplier,
       Supplier<ChassisSpeeds> chassisSpeedsSupplier,
-      Supplier<Rotation2d> headingSupplier) {
+      Supplier<Rotation2d> headingSupplier,
+      Supplier<Boolean> ejectSupplier) {
     // Set turret
     this.turret = turret;
 
@@ -43,6 +35,7 @@ public class AimTurretCommand extends CommandBase {
     this.estimatedPoseSupplier = estimatedPoseSupplier;
     this.chassisSpeedsSupplier = chassisSpeedsSupplier;
     this.headingSupplier = headingSupplier;
+    this.ejectSupplier = ejectSupplier;
 
     // Add the turret as a requirement
     addRequirements(turret);
@@ -64,12 +57,24 @@ public class AimTurretCommand extends CommandBase {
     // Get the estimated pose of the robot from the SwerveDrivePoseEstimator
     Pose2d estimatedPose = estimatedPoseSupplier.get();
 
+    // Initialize target
+    Pose2d target;
+
+    // Check if the eject value is true
+    if (ejectSupplier.get()) {
+      // If it is set target to the eject pose
+      target = Constants.EJECT_POSE;
+    } else {
+      // If it isn't set target to the goal pose
+      target = Constants.GOAL_POSE;
+    }
+
     // Calculate the current range to the target
-    double range = new Transform2d(estimatedPose, GOAL_POSE).getTranslation().getNorm();
+    double range = new Transform2d(estimatedPose, target).getTranslation().getNorm();
 
     // Calculate the air time of the ball from this range and scale the velocity vector
     Translation2d scaledVelocityVector =
-        velocityVector.times(AIR_TIME_SLOPE * range + AIR_TIME_INTERCEPT);
+        velocityVector.times(Constants.AIR_TIME_SLOPE * range + Constants.AIR_TIME_INTERCEPT);
 
     // Calculate the pose of the robot by the time the shot will land
     Pose2d futurePose =
@@ -78,10 +83,10 @@ public class AimTurretCommand extends CommandBase {
             .transformBy(new Transform2d(scaledVelocityVector, headingSupplier.get()));
 
     // Get the angle between the future position of the robot and the goal
-    Rotation2d targetAngle = new Transform2d(futurePose, GOAL_POSE).getRotation();
+    Rotation2d targetAngle = new Transform2d(futurePose, target).getRotation();
 
     // Rotate that by the angle between the robot front and turret front
-    Rotation2d turretAngle = targetAngle.rotateBy(ROBOT_TO_TURRET);
+    Rotation2d turretAngle = targetAngle.rotateBy(Constants.ROBOT_TO_TURRET);
 
     // Aim the turret at that angle
     turret.aim(turretAngle.getRadians());

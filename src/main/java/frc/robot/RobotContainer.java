@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.AimHoodCommand;
 import frc.robot.commands.AimShooterCommand;
 import frc.robot.commands.AimTurretCommand;
+import frc.robot.commands.EjectCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.PoseEstimateCommand;
 import frc.robot.commands.ShootCommand;
@@ -64,9 +65,10 @@ public class RobotContainer {
 
   // Buttons
   private final Button gyroResetButton = new Button(driverController::getShareButton);
-  private final Button toggleIntakeButton = new Button(driverController::getXButton);
+  private final Button toggleIntakeButton = new Button(driverController::getLeftTriggerButton);
   private final Button shootButton = new Button(driverController::getRightTriggerButton);
   private final Button toggleSmartShootButton = new Button(driverController::getRightBumperButton);
+  private final Button ejectButton = new Button(driverController::getXButton);
 
   // Autos Enumerator
   private enum Autos {
@@ -129,6 +131,9 @@ public class RobotContainer {
             new StopSmartShootingCommand(superstructure),
             new SmartShootCommand(superstructure),
             superstructure::isSmartShooting));
+
+    // When the eject button is pressed run an EjectCommand
+    ejectButton.whenPressed(new EjectCommand(superstructure));
   }
 
   /** Configures the default commands for each subsystem */
@@ -148,15 +153,30 @@ public class RobotContainer {
 
     // Set the default turret command to an AimTurretCommand
     turret.setDefaultCommand(
-        new AimTurretCommand(turret, swerve::getPose, swerve::getSpeeds, swerve::getHeading));
+        new AimTurretCommand(
+            turret,
+            swerve::getPose,
+            swerve::getSpeeds,
+            swerve::getHeading,
+            superstructure::isEjecting));
 
     // Set the default shooter command to an AimShooterCommand
     shooter.setDefaultCommand(
-        new AimShooterCommand(shooter, swerve::getPose, swerve::getSpeeds, swerve::getHeading));
+        new AimShooterCommand(
+            shooter,
+            swerve::getPose,
+            swerve::getSpeeds,
+            swerve::getHeading,
+            superstructure::isEjecting));
 
     // Set the default hood command to an AimHoodCommand
     hood.setDefaultCommand(
-        new AimHoodCommand(hood, swerve::getPose, swerve::getSpeeds, swerve::getHeading));
+        new AimHoodCommand(
+            hood,
+            swerve::getPose,
+            swerve::getSpeeds,
+            swerve::getHeading,
+            superstructure::isEjecting));
   }
 
   /** Returns the command to run during autonomous */

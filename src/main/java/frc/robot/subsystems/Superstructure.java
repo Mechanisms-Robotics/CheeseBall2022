@@ -32,6 +32,7 @@ public class Superstructure extends SubsystemBase {
   private boolean intaking = false;
   private boolean shooting = false;
   private boolean smart = false;
+  private boolean ejecting = false;
 
   /** Constructor for the Superstructure class */
   public Superstructure(
@@ -122,11 +123,65 @@ public class Superstructure extends SubsystemBase {
     this.smart = false;
   }
 
+  /** Sets the ejecting flag to true */
+  public void eject() {
+    // Set the ejecting flag to true
+    this.ejecting = true;
+  }
+
+  /** Sets the ejecting flag to false */
+  public void stopEjecting() {
+    // Set the ejecting flag to false
+    this.ejecting = false;
+  }
+
   /**
-   * Runs periodically and contains the logic for how to handle intaking, shooting, and both
-   * simultaneously
+   * Runs periodically and contains the logic for how to handle intaking, shooting, both
+   * simultaneously, and ejecting
    */
   public void periodic() {
+    // Check if the ejecting flag is set
+    if (this.ejecting) {
+      // Check if the feeder is currently ejecting
+      if (feeder.isEjecting()) {
+        // Check if the feeder is done ejecting
+        if (feeder.isDoneEjecting()) {
+          // If it is reset the feeder ejecting flags
+          feeder.stopEjecting();
+
+          // Set the ejecting flag to false
+          this.ejecting = false;
+        }
+      } else {
+        // Check if the turret is at it's desired angle
+        if (!turretAtDesiredAngleSupplier.get()) {
+          // If it isn't return
+          return;
+        }
+
+        // Check if the hood is at it's desired angle
+        if (!hoodAtDesiredAngleSupplier.get()) {
+          // If it isn't return
+          return;
+        }
+
+        // Check if the shooter is at it's desired RPM
+        if (!shooterAtDesiredSpeedSupplier.get()) {
+          // If it isn't return
+          return;
+        }
+
+        // Stop the processor
+        processor.stop();
+
+        // Tell the feeder to eject
+        feeder.eject();
+      }
+
+      // Return so the intaking and shooting code doesn't run
+      return;
+    }
+
     // Check what flags are set
     if (this.intaking && !this.shooting) {
       // If only the intaking flag is set, run the processor and feeder in intake mode
@@ -224,5 +279,11 @@ public class Superstructure extends SubsystemBase {
   public boolean isSmartShooting() {
     // Check if both the shooting and smart flag are true, if so return true
     return (this.shooting && this.smart);
+  }
+
+  /** Returns whether the superstructure is ejecting or not */
+  public boolean isEjecting() {
+    // Return the ejecting flag
+    return this.ejecting;
   }
 }
