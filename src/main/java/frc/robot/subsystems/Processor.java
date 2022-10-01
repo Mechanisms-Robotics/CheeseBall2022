@@ -49,6 +49,9 @@ public class Processor extends SubsystemBase {
   public final DigitalInput feederBottomSensor = new DigitalInput(1);
   public final DigitalInput feederTopSensor = new DigitalInput(2);
 
+  // Override sensors flag
+  private boolean overrideSensors = false;
+
   /** Constructor for the Processor class */
   public Processor() {
     // Configure processor motor
@@ -64,13 +67,18 @@ public class Processor extends SubsystemBase {
   /** Runs periodically and outputs the values of the proximity sensors to SmartDashboard */
   @Override
   public void periodic() {
+    // Get the values of the proximity sensors
     boolean processorSensorTriggered = !processorSensor.get();
     boolean feederBottomSensorTriggered = !feederBottomSensor.get();
     boolean feederTopSensorTriggered = !feederTopSensor.get();
 
+    // Put the values of the proximit sensors out to SmartDashboard
     SmartDashboard.putBoolean("Processor Sensor", processorSensorTriggered);
     SmartDashboard.putBoolean("Feeder Bottom Sensor", feederBottomSensorTriggered);
     SmartDashboard.putBoolean("Feeder Top Sensor", feederTopSensorTriggered);
+
+    // Put the override sensors flag out to SmartDashboard
+    SmartDashboard.putBoolean("Proxmity Sensors Override", overrideSensors);
   }
 
   /** Runs the processor differently depending on which proximity sensors are triggered */
@@ -81,7 +89,7 @@ public class Processor extends SubsystemBase {
     boolean processorSensorTriggered = !processorSensor.get();
 
     // Check which sensors are triggered
-    if (!(feederTopSensorTriggered && feederBottomSensorTriggered)) {
+    if (this.overrideSensors || !(feederTopSensorTriggered && feederBottomSensorTriggered)) {
       // If the robot doesn't have two balls yet run processor at PROCESSOR_INTAKE_SPEED
       processorMotor.set(ControlMode.PercentOutput, PROCESSOR_INTAKE_SPEED);
     } else if (!processorSensorTriggered) {
@@ -103,5 +111,11 @@ public class Processor extends SubsystemBase {
   public void stop() {
     // Set the processor motor to 0% power
     processorMotor.set(ControlMode.PercentOutput, 0.0);
+  }
+
+  /** Toggles the override sensors flag */
+  public void toggleOverrideSensors() {
+    // Set overrideSensors to the opposite of the current value
+    this.overrideSensors = !this.overrideSensors;
   }
 }

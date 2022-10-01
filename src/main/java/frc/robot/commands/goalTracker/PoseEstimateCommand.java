@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.goalTracker;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;

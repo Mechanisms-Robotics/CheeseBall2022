@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.hood;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -7,15 +7,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Hood;
 import java.util.function.Supplier;
 
-/**
- * Varies the shooter RPMs depending on range to the goal accounting for the current robot velocity
- */
-public class AimShooterCommand extends CommandBase {
-  // Instance of Shooter
-  public final Shooter shooter;
+/** This command aims the hood at the goal accounting for the current robot velocity */
+public class AimHoodCommand extends CommandBase {
+  // Instance of Hood
+  private final Hood hood;
 
   // Suppliers
   private final Supplier<Pose2d> estimatedPoseSupplier;
@@ -23,15 +21,15 @@ public class AimShooterCommand extends CommandBase {
   private final Supplier<Rotation2d> headingSupplier;
   private final Supplier<Boolean> ejectSupplier;
 
-  /** Constructor of an AimShooterCommand */
-  public AimShooterCommand(
-      Shooter shooter,
+  /** Constructor of a AimHoodCommand */
+  public AimHoodCommand(
+      Hood hood,
       Supplier<Pose2d> estimatedPoseSupplier,
       Supplier<ChassisSpeeds> chassisSpeedsSupplier,
       Supplier<Rotation2d> headingSupplier,
       Supplier<Boolean> ejectSupplier) {
-    // Set shooter
-    this.shooter = shooter;
+    // Set hood
+    this.hood = hood;
 
     // Set suppliers
     this.estimatedPoseSupplier = estimatedPoseSupplier;
@@ -39,8 +37,8 @@ public class AimShooterCommand extends CommandBase {
     this.headingSupplier = headingSupplier;
     this.ejectSupplier = ejectSupplier;
 
-    // Add the shooter as a requirement
-    addRequirements(shooter);
+    // Add the hood as a requirement
+    addRequirements(hood);
   }
 
   /** Runs periodically while the command is running */
@@ -87,7 +85,7 @@ public class AimShooterCommand extends CommandBase {
     // Calculate what the range to the target is by the time the shot will land
     double futureRange = target.minus(futurePose).getTranslation().getNorm();
 
-    // Vary the shooter RPM based on the calculated future range
-    shooter.shoot(futureRange);
+    // Aim the hood at a calculated angle based on the future range to the goal
+    hood.aim(futureRange);
   }
 }

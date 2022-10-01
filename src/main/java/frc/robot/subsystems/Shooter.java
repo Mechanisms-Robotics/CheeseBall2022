@@ -15,7 +15,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.EpsilonUtil;
+import frc.robot.util.Utils;
 import frc.robot.util.Units;
 
 /** This class contains all the code that controls the shooter functionality */
@@ -98,7 +98,7 @@ public class Shooter extends SubsystemBase {
 
   /** Returns whether the shooter is within SHOOTER_EPSILON RPM of it's desired speed */
   public boolean atDesiredSpeed() {
-    return EpsilonUtil.epsilonEquals(getRPM(), this.desiredRPM, SHOOTER_ERROR_EPSILON);
+    return Utils.epsilonEquals(getRPM(), this.desiredRPM, SHOOTER_ERROR_EPSILON);
   }
 
   /** Returns the RPM of the shooter */

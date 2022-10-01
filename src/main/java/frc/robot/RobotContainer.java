@@ -6,22 +6,26 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
-import frc.robot.commands.AimHoodCommand;
-import frc.robot.commands.AimShooterCommand;
-import frc.robot.commands.AimTurretCommand;
-import frc.robot.commands.EjectCommand;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.PoseEstimateCommand;
-import frc.robot.commands.ShootCommand;
-import frc.robot.commands.SmartShootCommand;
-import frc.robot.commands.StopIntakingCommand;
-import frc.robot.commands.StopShootingCommand;
-import frc.robot.commands.StopSmartShootingCommand;
+import frc.robot.commands.colorSensor.ToggleOverrideColorSensorCommand;
+import frc.robot.commands.hood.AimHoodCommand;
+import frc.robot.commands.shooter.AimShooterCommand;
+import frc.robot.commands.superstructure.EjectCommand;
+import frc.robot.commands.superstructure.StopEjectingCommand;
+import frc.robot.commands.superstructure.ToggleOverrideSensorsCommand;
+import frc.robot.commands.turret.AimTurretCommand;
+import frc.robot.commands.superstructure.IntakeCommand;
+import frc.robot.commands.goalTracker.PoseEstimateCommand;
+import frc.robot.commands.superstructure.ShootCommand;
+import frc.robot.commands.superstructure.SmartShootCommand;
+import frc.robot.commands.superstructure.StopIntakingCommand;
+import frc.robot.commands.superstructure.StopShootingCommand;
+import frc.robot.commands.superstructure.StopSmartShootingCommand;
 import frc.robot.commands.auto.FiveBallAutoCommand;
 import frc.robot.commands.auto.FiveBallMovingAutoCommand;
 import frc.robot.commands.auto.SixBallAutoCommand;
 import frc.robot.commands.auto.SixBallMovingAutoCommand;
 import frc.robot.commands.swerve.DriveTeleopCommand;
+import frc.robot.subsystems.ColorSensor;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.GoalTracker;
 import frc.robot.subsystems.Hood;
@@ -32,6 +36,7 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Turret;
 import frc.robot.util.ControllerWrapper;
+import frc.robot.util.ControllerWrapper.Direction;
 
 /** This class contains all the subsystems, command bindings, and button bindings */
 public class RobotContainer {
@@ -60,6 +65,9 @@ public class RobotContainer {
           swerve::getAcceleration,
           swerve::getPose);
 
+  // Color Sensor
+  public final ColorSensor colorSensor = new ColorSensor();
+
   // Controller
   private final ControllerWrapper driverController = new ControllerWrapper(0);
 
@@ -68,7 +76,11 @@ public class RobotContainer {
   private final Button toggleIntakeButton = new Button(driverController::getLeftTriggerButton);
   private final Button shootButton = new Button(driverController::getRightTriggerButton);
   private final Button toggleSmartShootButton = new Button(driverController::getRightBumperButton);
-  private final Button ejectButton = new Button(driverController::getXButton);
+  private final Button manualEjectButton = new Button(driverController::getXButton);
+  private final Button toggleOverrideProximitySensors =
+      new Button(() -> driverController.getPOV() == Direction.Down);
+  private final Button toggleOverrideColorSensor =
+      new Button(() -> driverController.getPOV() == Direction.Up);
 
   // Autos Enumerator
   private enum Autos {
@@ -132,8 +144,19 @@ public class RobotContainer {
             new SmartShootCommand(superstructure),
             superstructure::isSmartShooting));
 
-    // When the eject button is pressed run an EjectCommand
-    ejectButton.whenPressed(new EjectCommand(superstructure));
+    // When the manual eject button is pressed run an EjectCommand
+    manualEjectButton.whenPressed(new EjectCommand(superstructure));
+
+    // When the manual eject button is released run a StopEjectingCommand
+    manualEjectButton.whenReleased(new StopEjectingCommand(superstructure));
+
+    // When the toggle override proximity sensors button is pressed run a
+    // ToggleOverrideSensorsCommand
+    toggleOverrideProximitySensors.whenPressed(new ToggleOverrideSensorsCommand(superstructure));
+
+    // When the toggle override color sensor button is pressed run a
+    // ToggleOverrideColorSensorCommand
+    toggleOverrideColorSensor.whenPressed(new ToggleOverrideColorSensorCommand(colorSensor));
   }
 
   /** Configures the default commands for each subsystem */
@@ -158,7 +181,7 @@ public class RobotContainer {
             swerve::getPose,
             swerve::getSpeeds,
             swerve::getHeading,
-            superstructure::isEjecting));
+            () -> (manualEjectButton.get() || colorSensor.isWrongColor())));
 
     // Set the default shooter command to an AimShooterCommand
     shooter.setDefaultCommand(
@@ -167,7 +190,7 @@ public class RobotContainer {
             swerve::getPose,
             swerve::getSpeeds,
             swerve::getHeading,
-            superstructure::isEjecting));
+            () -> (manualEjectButton.get() || colorSensor.isWrongColor())));
 
     // Set the default hood command to an AimHoodCommand
     hood.setDefaultCommand(
@@ -176,7 +199,7 @@ public class RobotContainer {
             swerve::getPose,
             swerve::getSpeeds,
             swerve::getHeading,
-            superstructure::isEjecting));
+            () -> (manualEjectButton.get() || colorSensor.isWrongColor())));
   }
 
   /** Returns the command to run during autonomous */

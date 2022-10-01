@@ -125,65 +125,42 @@ public class Superstructure extends SubsystemBase {
 
   /** Sets the ejecting flag to true */
   public void eject() {
-    // Set the ejecting flag to true
     this.ejecting = true;
   }
 
   /** Sets the ejecting flag to false */
   public void stopEjecting() {
-    // Set the ejecting flag to false
     this.ejecting = false;
   }
 
   /**
-   * Runs periodically and contains the logic for how to handle intaking, shooting, both
-   * simultaneously, and ejecting
+   * Runs periodically and contains the logic for how to handle intaking, shooting, and both
+   * simultaneously
    */
   public void periodic() {
-    // Check if the ejecting flag is set
-    if (this.ejecting) {
-      // Check if the feeder is currently ejecting
-      if (feeder.isEjecting()) {
-        // Check if the feeder is done ejecting
-        if (feeder.isDoneEjecting()) {
-          // If it is reset the feeder ejecting flags
-          feeder.stopEjecting();
+    // Check if the turret is at it's desired angle
+    if (!turretAtDesiredAngleSupplier.get()) {
+      // If it isn't return
+      return;
+    }
 
-          // Set the ejecting flag to false
-          this.ejecting = false;
-        }
-      } else {
-        // Check if the turret is at it's desired angle
-        if (!turretAtDesiredAngleSupplier.get()) {
-          // If it isn't return
-          return;
-        }
+    // Check if the hood is at it's desired angle
+    if (!hoodAtDesiredAngleSupplier.get()) {
+      // If it isn't return
+      return;
+    }
 
-        // Check if the hood is at it's desired angle
-        if (!hoodAtDesiredAngleSupplier.get()) {
-          // If it isn't return
-          return;
-        }
-
-        // Check if the shooter is at it's desired RPM
-        if (!shooterAtDesiredSpeedSupplier.get()) {
-          // If it isn't return
-          return;
-        }
-
-        // Stop the processor
-        processor.stop();
-
-        // Tell the feeder to eject
-        feeder.eject();
-      }
-
-      // Return so the intaking and shooting code doesn't run
+    // Check if the shooter is at it's desired RPM
+    if (!shooterAtDesiredSpeedSupplier.get()) {
+      // If it isn't return
       return;
     }
 
     // Check what flags are set
-    if (this.intaking && !this.shooting) {
+    if (this.ejecting) {
+      processor.stop();
+      feeder.eject();
+    } else if (this.intaking && !this.shooting) {
       // If only the intaking flag is set, run the processor and feeder in intake mode
       processor.intake();
       feeder.intake();
@@ -281,9 +258,12 @@ public class Superstructure extends SubsystemBase {
     return (this.shooting && this.smart);
   }
 
-  /** Returns whether the superstructure is ejecting or not */
-  public boolean isEjecting() {
-    // Return the ejecting flag
-    return this.ejecting;
+  /** Toggle the sensor override for the processor and feeder */
+  public void toggleOverrideSensors() {
+    // Toggle the sensor override for the processor
+    this.processor.toggleOverrideSensors();
+
+    // Toggle the sensor override for the feeder
+    this.feeder.toggleOverrideSensors();
   }
 }

@@ -15,8 +15,8 @@ public class GoalTracker extends SubsystemBase {
 
   // Limelight constants
   private static final double TARGET_HEIGHT = 2.64; // meters
-  private static final double CAMERA_HEIGHT = 1.0; // meters
-  private static final double CAMERA_PITCH = Math.toRadians(60.0); // radians
+  private static final double CAMERA_HEIGHT = 0.99; // meters
+  private static final double CAMERA_PITCH = Math.toRadians(70.0); // radians
 
   /** This class is used as a structure for target data */
   public static class TargetData {
@@ -74,6 +74,7 @@ public class GoalTracker extends SubsystemBase {
 
   /** Converts the range PhotonVision calculates to a real range to the goal */
   private double photonRangeToRealRange(double photonRange) {
+    // TODO: Implement range mapping
     double realRange = photonRange;
     return photonRange;
   }

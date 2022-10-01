@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.turret;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -7,13 +7,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Turret;
 import java.util.function.Supplier;
 
-/** This command aims the hood at the goal accounting for the current robot velocity */
-public class AimHoodCommand extends CommandBase {
-  // Instance of Hood
-  private final Hood hood;
+/** This command aims the turret at the goal accounting for the current robot velocity */
+public class AimTurretCommand extends CommandBase {
+  // Instance of Turret
+  private final Turret turret;
 
   // Suppliers
   private final Supplier<Pose2d> estimatedPoseSupplier;
@@ -21,15 +21,15 @@ public class AimHoodCommand extends CommandBase {
   private final Supplier<Rotation2d> headingSupplier;
   private final Supplier<Boolean> ejectSupplier;
 
-  /** Constructor of a AimHoodCommand */
-  public AimHoodCommand(
-      Hood hood,
+  /** Constructor of an AimTurretCommand */
+  public AimTurretCommand(
+      Turret turret,
       Supplier<Pose2d> estimatedPoseSupplier,
       Supplier<ChassisSpeeds> chassisSpeedsSupplier,
       Supplier<Rotation2d> headingSupplier,
       Supplier<Boolean> ejectSupplier) {
-    // Set hood
-    this.hood = hood;
+    // Set turret
+    this.turret = turret;
 
     // Set suppliers
     this.estimatedPoseSupplier = estimatedPoseSupplier;
@@ -37,8 +37,8 @@ public class AimHoodCommand extends CommandBase {
     this.headingSupplier = headingSupplier;
     this.ejectSupplier = ejectSupplier;
 
-    // Add the hood as a requirement
-    addRequirements(hood);
+    // Add the turret as a requirement
+    addRequirements(turret);
   }
 
   /** Runs periodically while the command is running */
@@ -82,10 +82,13 @@ public class AimHoodCommand extends CommandBase {
             .get()
             .transformBy(new Transform2d(scaledVelocityVector, headingSupplier.get()));
 
-    // Calculate what the range to the target is by the time the shot will land
-    double futureRange = target.minus(futurePose).getTranslation().getNorm();
+    // Get the angle between the future position of the robot and the goal
+    Rotation2d targetAngle = new Transform2d(futurePose, target).getRotation();
 
-    // Aim the hood at a calculated angle based on the future range to the goal
-    hood.aim(futureRange);
+    // Rotate that by the angle between the robot front and turret front
+    Rotation2d turretAngle = targetAngle.rotateBy(Constants.ROBOT_TO_TURRET);
+
+    // Aim the turret at that angle
+    turret.aim(turretAngle.getRadians());
   }
 }

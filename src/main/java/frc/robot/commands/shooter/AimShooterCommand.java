@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -7,13 +7,15 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Shooter;
 import java.util.function.Supplier;
 
-/** This command aims the turret at the goal accounting for the current robot velocity */
-public class AimTurretCommand extends CommandBase {
-  // Instance of Turret
-  private final Turret turret;
+/**
+ * Varies the shooter RPMs depending on range to the goal accounting for the current robot velocity
+ */
+public class AimShooterCommand extends CommandBase {
+  // Instance of Shooter
+  public final Shooter shooter;
 
   // Suppliers
   private final Supplier<Pose2d> estimatedPoseSupplier;
@@ -21,15 +23,15 @@ public class AimTurretCommand extends CommandBase {
   private final Supplier<Rotation2d> headingSupplier;
   private final Supplier<Boolean> ejectSupplier;
 
-  /** Constructor of an AimTurretCommand */
-  public AimTurretCommand(
-      Turret turret,
+  /** Constructor of an AimShooterCommand */
+  public AimShooterCommand(
+      Shooter shooter,
       Supplier<Pose2d> estimatedPoseSupplier,
       Supplier<ChassisSpeeds> chassisSpeedsSupplier,
       Supplier<Rotation2d> headingSupplier,
       Supplier<Boolean> ejectSupplier) {
-    // Set turret
-    this.turret = turret;
+    // Set shooter
+    this.shooter = shooter;
 
     // Set suppliers
     this.estimatedPoseSupplier = estimatedPoseSupplier;
@@ -37,8 +39,8 @@ public class AimTurretCommand extends CommandBase {
     this.headingSupplier = headingSupplier;
     this.ejectSupplier = ejectSupplier;
 
-    // Add the turret as a requirement
-    addRequirements(turret);
+    // Add the shooter as a requirement
+    addRequirements(shooter);
   }
 
   /** Runs periodically while the command is running */
@@ -82,13 +84,10 @@ public class AimTurretCommand extends CommandBase {
             .get()
             .transformBy(new Transform2d(scaledVelocityVector, headingSupplier.get()));
 
-    // Get the angle between the future position of the robot and the goal
-    Rotation2d targetAngle = new Transform2d(futurePose, target).getRotation();
+    // Calculate what the range to the target is by the time the shot will land
+    double futureRange = target.minus(futurePose).getTranslation().getNorm();
 
-    // Rotate that by the angle between the robot front and turret front
-    Rotation2d turretAngle = targetAngle.rotateBy(Constants.ROBOT_TO_TURRET);
-
-    // Aim the turret at that angle
-    turret.aim(turretAngle.getRadians());
+    // Vary the shooter RPM based on the calculated future range
+    shooter.shoot(futureRange);
   }
 }

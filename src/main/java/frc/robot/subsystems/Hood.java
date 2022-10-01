@@ -15,7 +15,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.EpsilonUtil;
+import frc.robot.util.Utils;
 import frc.robot.util.Units;
 
 /** This class contains all the code that controls the hood functionality */
@@ -116,7 +116,7 @@ public class Hood extends SubsystemBase {
 
   /** Returns whether the hood is within HOOD_ERROR_EPSILON degrees of it's desired angle */
   public boolean atDesiredAngle() {
-    return EpsilonUtil.epsilonEquals(getAngle(), this.desiredAngle, HOOD_ERROR_EPSILON);
+    return Utils.epsilonEquals(getAngle(), this.desiredAngle, HOOD_ERROR_EPSILON);
   }
 
   /** Gets the current angle of the hood in rads */
