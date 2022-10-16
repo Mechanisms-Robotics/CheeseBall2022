@@ -25,8 +25,8 @@ public class Turret extends SubsystemBase {
 
   private static final double TURRET_FORWARD_LIMIT = Math.toRadians(90.0); // 90 degrees
   private static final double TURRET_REVERSE_LIMIT = Math.toRadians(-90.0); // -90 degrees
-  private static final double TURRET_ALLOWABLE_ERROR = Math.toRadians(0.5); // 0.5 degrees
-  private static final double TURRET_ERROR_EPSILON = Math.toRadians(1.0); // 1 degree
+  private static final double TURRET_ALLOWABLE_ERROR = Math.toRadians(3.0); // 3 degrees
+  private static final double TURRET_ERROR_EPSILON = Math.toRadians(3.0); // 3 degrees
 
   // Turret motor
   private final WPI_TalonFX turretMotor = new WPI_TalonFX(50);
@@ -54,7 +54,8 @@ public class Turret extends SubsystemBase {
 
     // Turret PID configuration
     final var turretPositionPID = new SlotConfiguration();
-    turretPositionPID.kP = 0.0;
+    turretPositionPID.kP = 0.05;
+    turretPositionPID.kD = 1.0;
     turretPositionPID.allowableClosedloopError =
         Units.radsToFalcon(TURRET_ALLOWABLE_ERROR, TURRET_GEAR_RATIO);
     TURRET_MOTOR_CONFIGURATION.slot0 = turretPositionPID;

@@ -1,12 +1,12 @@
 package com.swervedrivespecialties.swervelib.ctre;
 
+import static com.swervedrivespecialties.swervelib.ctre.CtreUtils.checkCtreError;
+
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.swervedrivespecialties.swervelib.*;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
-
-import static com.swervedrivespecialties.swervelib.ctre.CtreUtils.checkCtreError;
 
 public final class Falcon500SteerControllerFactoryBuilder {
   private static final int CAN_TIMEOUT_MS = 250;
@@ -158,7 +158,7 @@ public final class Falcon500SteerControllerFactoryBuilder {
           "Failed to set Falcon 500 encoder position");
 
       // Reduce CAN status frame rates
-      checkCtreError(
+      CtreUtils.checkCtreError(
           motor.setStatusFramePeriod(
               StatusFrameEnhanced.Status_1_General, STATUS_FRAME_GENERAL_PERIOD_MS, CAN_TIMEOUT_MS),
           "Failed to configure Falcon status frame period");

@@ -181,7 +181,9 @@ public class RobotContainer {
             swerve::getPose,
             swerve::getSpeeds,
             swerve::getHeading,
-            () -> (manualEjectButton.get() || colorSensor.isWrongColor())));
+            () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
+            swerve::hasBeenLocalized,
+            goalTracker::hasSeenTarget));
 
     // Set the default shooter command to an AimShooterCommand
     shooter.setDefaultCommand(
@@ -190,7 +192,9 @@ public class RobotContainer {
             swerve::getPose,
             swerve::getSpeeds,
             swerve::getHeading,
-            () -> (manualEjectButton.get() || colorSensor.isWrongColor())));
+            () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
+            swerve::hasBeenLocalized,
+            goalTracker::hasSeenTarget));
 
     // Set the default hood command to an AimHoodCommand
     hood.setDefaultCommand(
@@ -199,7 +203,9 @@ public class RobotContainer {
             swerve::getPose,
             swerve::getSpeeds,
             swerve::getHeading,
-            () -> (manualEjectButton.get() || colorSensor.isWrongColor())));
+            () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
+            swerve::hasBeenLocalized,
+            goalTracker::hasSeenTarget));
   }
 
   /** Returns the command to run during autonomous */

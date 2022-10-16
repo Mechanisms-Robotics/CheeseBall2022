@@ -28,6 +28,9 @@ public class GoalTracker extends SubsystemBase {
   // Current Limelight target
   private final TargetData currentTarget = new TargetData();
 
+  // Has seen target flag
+  private boolean hasSeenTarget = true;
+
   /** Constructor for the GoalTracker class */
   public GoalTracker() {
     // Instantiate the limelight and limelight network table
@@ -45,6 +48,9 @@ public class GoalTracker extends SubsystemBase {
 
     // Check if there are any targets in the result
     if (limelightResult.hasTargets()) {
+      // Set the has seen target flag to true
+      this.hasSeenTarget = true;
+
       // If there are get the best target
       PhotonTrackedTarget bestTarget = limelightResult.getBestTarget();
 
@@ -95,5 +101,10 @@ public class GoalTracker extends SubsystemBase {
   public TargetData getCurrentTarget() {
     // Return currentTarget
     return this.currentTarget;
+  }
+
+  /** Returns whether the GoalTracker has seen a target or not */
+  public boolean hasSeenTarget() {
+    return this.hasSeenTarget;
   }
 }

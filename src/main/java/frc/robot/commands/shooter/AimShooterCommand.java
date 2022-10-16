@@ -22,6 +22,8 @@ public class AimShooterCommand extends CommandBase {
   private final Supplier<ChassisSpeeds> chassisSpeedsSupplier;
   private final Supplier<Rotation2d> headingSupplier;
   private final Supplier<Boolean> ejectSupplier;
+  private final Supplier<Boolean> hasBeenLocalizedSupplier;
+  private final Supplier<Boolean> hasSeenTargetSupplier;
 
   /** Constructor of an AimShooterCommand */
   public AimShooterCommand(
@@ -29,7 +31,9 @@ public class AimShooterCommand extends CommandBase {
       Supplier<Pose2d> estimatedPoseSupplier,
       Supplier<ChassisSpeeds> chassisSpeedsSupplier,
       Supplier<Rotation2d> headingSupplier,
-      Supplier<Boolean> ejectSupplier) {
+      Supplier<Boolean> ejectSupplier,
+      Supplier<Boolean> hasBeenLocalizedSupplier,
+      Supplier<Boolean> hasSeenTargetSupplier) {
     // Set shooter
     this.shooter = shooter;
 
@@ -38,6 +42,8 @@ public class AimShooterCommand extends CommandBase {
     this.chassisSpeedsSupplier = chassisSpeedsSupplier;
     this.headingSupplier = headingSupplier;
     this.ejectSupplier = ejectSupplier;
+    this.hasBeenLocalizedSupplier = hasBeenLocalizedSupplier;
+    this.hasSeenTargetSupplier = hasSeenTargetSupplier;
 
     // Add the shooter as a requirement
     addRequirements(shooter);
@@ -46,6 +52,11 @@ public class AimShooterCommand extends CommandBase {
   /** Runs periodically while the command is running */
   @Override
   public void execute() {
+    // If the robot has not been localized and not seen a target return
+    if (!(hasBeenLocalizedSupplier.get() && hasSeenTargetSupplier.get())) {
+      return;
+    }
+
     // Get the chassis speeds of the swerve
     ChassisSpeeds speeds = chassisSpeedsSupplier.get();
 

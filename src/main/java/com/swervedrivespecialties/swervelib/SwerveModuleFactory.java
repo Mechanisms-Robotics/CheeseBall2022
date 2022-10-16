@@ -2,6 +2,7 @@ package com.swervedrivespecialties.swervelib;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 
 public class SwerveModuleFactory<DriveConfiguration, SteerConfiguration> {
@@ -48,16 +49,6 @@ public class SwerveModuleFactory<DriveConfiguration, SteerConfiguration> {
     }
 
     @Override
-    public double getDriveVelocity() {
-      return driveController.getVelocity();
-    }
-
-    @Override
-    public double getSteerAngle() {
-      return steerController.getStateAngle();
-    }
-
-    @Override
     public void setState(SwerveModuleState state) {
       double speedMPS = state.speedMetersPerSecond;
 
@@ -101,6 +92,16 @@ public class SwerveModuleFactory<DriveConfiguration, SteerConfiguration> {
     @Override
     public SwerveModuleState getState() {
       return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getSteerAngle()));
+    }
+
+    @Override
+    public double getDriveVelocity() {
+      return driveController.getVelocity();
+    }
+
+    @Override
+    public double getSteerAngle() {
+      return steerController.getStateAngle();
     }
   }
 }

@@ -2,7 +2,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper.GearRatio;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -11,7 +12,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -43,7 +43,7 @@ public class Swerve extends SubsystemBase {
       new Translation2d(-driveBaseWidth / 2.0, -driveBaseLength / 2.0);
 
   private static final int flWheelMotorID = 10;
-  private static final int flSteerMotorID = 11;
+  private static final int flSteerMotorID = 11; // Done
   private static final int flSteerEncoderID = 10;
   private static final int frWheelMotorID = 16;
   private static final int frSteerMotorID = 17;
@@ -55,10 +55,10 @@ public class Swerve extends SubsystemBase {
   private static final int brSteerMotorID = 15;
   private static final int brSteerEncoderID = 14;
 
-  private static final double flAngleOffset = 0.0;
-  private static final double frAngleOffset = 0.0;
-  private static final double blAngleOffset = 0.0;
-  private static final double brAngleOffset = 0.0;
+  private static final double flAngleOffset = -290.12;
+  private static final double frAngleOffset = -238.00;
+  private static final double blAngleOffset = -196.69;
+  private static final double brAngleOffset = -95.80;
 
   private static final int gyroID = 0;
 
@@ -71,42 +71,42 @@ public class Swerve extends SubsystemBase {
   private final ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
 
   private final SwerveModule flModule =
-      Mk4SwerveModuleHelper.createFalcon500(
+      Mk4iSwerveModuleHelper.createFalcon500(
           tab.getLayout("Front Left Module", BuiltInLayouts.kList)
               .withSize(2, 2)
               .withPosition(0, 0),
-          Mk4SwerveModuleHelper.GearRatio.L2,
+          GearRatio.L3,
           flWheelMotorID,
           flSteerMotorID,
           flSteerEncoderID,
           Math.toRadians(flAngleOffset));
 
   private final SwerveModule frModule =
-      Mk4SwerveModuleHelper.createFalcon500(
+      Mk4iSwerveModuleHelper.createFalcon500(
           tab.getLayout("Front Right Module", BuiltInLayouts.kList)
               .withSize(2, 2)
               .withPosition(2, 0),
-          Mk4SwerveModuleHelper.GearRatio.L2,
+          GearRatio.L3,
           frWheelMotorID,
           frSteerMotorID,
           frSteerEncoderID,
           Math.toRadians(frAngleOffset));
 
   private final SwerveModule blModule =
-      Mk4SwerveModuleHelper.createFalcon500(
+      Mk4iSwerveModuleHelper.createFalcon500(
           tab.getLayout("Back Left Module", BuiltInLayouts.kList).withSize(2, 2).withPosition(4, 0),
-          Mk4SwerveModuleHelper.GearRatio.L2,
+          GearRatio.L3,
           blWheelMotorID,
           blSteerMotorID,
           blSteerEncoderID,
           Math.toRadians(blAngleOffset));
 
   private final SwerveModule brModule =
-      Mk4SwerveModuleHelper.createFalcon500(
+      Mk4iSwerveModuleHelper.createFalcon500(
           tab.getLayout("Back Right Module", BuiltInLayouts.kList)
               .withSize(2, 2)
               .withPosition(6, 0),
-          Mk4SwerveModuleHelper.GearRatio.L2,
+          GearRatio.L3,
           brWheelMotorID,
           brSteerMotorID,
           brSteerEncoderID,
@@ -139,6 +139,9 @@ public class Swerve extends SubsystemBase {
   // Field2d Instance
   private final Field2d field2d = new Field2d();
 
+  // Localized flag
+  private boolean localized = false;
+
   /** Constructs the Swerve subsystem. */
   public Swerve() {
     poseEstimator =
@@ -162,7 +165,8 @@ public class Swerve extends SubsystemBase {
   public void periodic() {
     poseEstimator.update(
         getHeading(),
-        flModule.getState(),
+        new SwerveModuleState(
+            flModule.getDriveVelocity(), new Rotation2d(flModule.getSteerAngle())),
         frModule.getState(),
         blModule.getState(),
         brModule.getState());
@@ -319,6 +323,8 @@ public class Swerve extends SubsystemBase {
   }
 
   public void setPose(Pose2d pose, Rotation2d heading) {
+    this.localized = true;
+
     setHeading(heading);
     poseEstimator.resetPosition(pose, heading);
   }
@@ -326,6 +332,11 @@ public class Swerve extends SubsystemBase {
   public void resetSensors() {
     zeroHeading();
     poseEstimator.resetPosition(new Pose2d(), new Rotation2d());
+  }
+
+  /** Returns whether the swerve has been localized or not */
+  public boolean hasBeenLocalized() {
+    return this.localized;
   }
 
   /**

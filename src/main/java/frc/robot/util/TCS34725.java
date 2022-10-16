@@ -84,11 +84,17 @@ public class TCS34725 {
     // Get the raw RGBC register values
     List<Integer> rawRGBC = getRawRGBC();
 
-    // Calculate actual RGB values and return them
-    return Arrays.asList(
-        rawRGBC.get(0) / rawRGBC.get(3) * 255.0,
-        rawRGBC.get(1) / rawRGBC.get(3) * 255.0,
-        rawRGBC.get(2) / rawRGBC.get(3) * 255.0);
+    // Check that
+    if (rawRGBC.get(0) != 0) {
+      // Calculate actual RGB values and return them
+      return Arrays.asList(
+          rawRGBC.get(0) / rawRGBC.get(3) * 255.0,
+          rawRGBC.get(1) / rawRGBC.get(3) * 255.0,
+          rawRGBC.get(2) / rawRGBC.get(3) * 255.0);
+    } else {
+      // Return empty values
+      return Arrays.asList(0.0, 0.0, 0.0);
+    }
   }
 
   /** Set the gain of the sensor to a specified setting */
