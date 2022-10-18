@@ -84,7 +84,7 @@ public final class Falcon500DriveControllerFactoryBuilder {
       motor.setSensorPhase(true);
 
       // TODO: Rewrite SDS base code to make this cleaner
-      motor.config_kP(0, 0.0007298);
+      motor.config_kP(0, 0.001);
       motor.selectProfileSlot(0, 0);
 
       // Reduce CAN status frame rates

@@ -15,9 +15,9 @@ import java.util.function.Supplier;
 /** This class contains all the code that controls the feeder functionality */
 public class Feeder extends SubsystemBase {
   // Feeder speeds
-  private static final double FEEDER_INTAKE_SPEED = 0.25;
-  private static final double FEEDER_SHOOT_SPEED = 0.5;
-  private static final double FEEDER_EJECT_SPEED = 0.15;
+  private static final double FEEDER_INTAKE_SPEED = -0.25;
+  private static final double FEEDER_SHOOT_SPEED = -0.5;
+  private static final double FEEDER_EJECT_SPEED = -0.15;
 
   // Feeder motor
   private final WPI_TalonFX feederMotor = new WPI_TalonFX(40);

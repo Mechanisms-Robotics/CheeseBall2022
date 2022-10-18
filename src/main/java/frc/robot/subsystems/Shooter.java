@@ -25,6 +25,7 @@ public class Shooter extends SubsystemBase {
   private static final double SHOOTER_RPM_LOBF_SLOPE = 123.11;
   private static final double SHOOTER_RPM_LOBF_INTERCEPT = 1080.82;
   private static final double SHOOTER_ERROR_EPSILON = 10; // RPM
+  private static final double TUNING_SCALAR = 1.22;
 
   // Shooter motors
   private final WPI_TalonFX shooterMotor = new WPI_TalonFX(60);
@@ -46,8 +47,8 @@ public class Shooter extends SubsystemBase {
 
     // Shooter motors PID configuration
     final var shooterPID = new SlotConfiguration();
-    shooterPID.kP = 0.0;
-    shooterPID.kF = 0.0;
+    shooterPID.kP = 0.15;
+    shooterPID.kF = 0.055;
     SHOOTER_MOTOR_CONFIGURATION.slot0 = shooterPID;
 
     // Configure shooter motors velocity measurement
@@ -92,7 +93,9 @@ public class Shooter extends SubsystemBase {
     this.desiredRPM = SHOOTER_RPM_LOBF_SLOPE * range + SHOOTER_RPM_LOBF_INTERCEPT;
 
     // Run shooter motor at the calculated velocity
-    shooterMotor.set(ControlMode.Velocity, Units.RPMToFalcon(this.desiredRPM, SHOOTER_GEAR_RATIO));
+    shooterMotor.set(
+        ControlMode.Velocity,
+        Units.RPMToFalcon(this.desiredRPM, SHOOTER_GEAR_RATIO) * TUNING_SCALAR);
     shooterFollowerMotor.set(TalonFXControlMode.Follower, 60);
   }
 

@@ -55,10 +55,10 @@ public class Swerve extends SubsystemBase {
   private static final int brSteerMotorID = 15;
   private static final int brSteerEncoderID = 14;
 
-  private static final double flAngleOffset = -290.12;
-  private static final double frAngleOffset = -238.00;
-  private static final double blAngleOffset = -196.69;
-  private static final double brAngleOffset = -95.80;
+  private static final double flAngleOffset = -292.23; // -290.12
+  private static final double frAngleOffset = -239.76; // -238.00
+  private static final double blAngleOffset = -198.54; // -196.69
+  private static final double brAngleOffset = -97.82; // -95.80
 
   private static final int gyroID = 0;
 

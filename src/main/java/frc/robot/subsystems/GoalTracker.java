@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.InterpolatingDouble;
+import frc.robot.util.InterpolatingTreeMap;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.common.hardware.VisionLEDMode;
@@ -31,10 +33,16 @@ public class GoalTracker extends SubsystemBase {
   // Has seen target flag
   private boolean hasSeenTarget = true;
 
+  // Range interpolating tree map
+  private static final InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> RANGE_MAP =
+      new InterpolatingTreeMap<>();
+
   /** Constructor for the GoalTracker class */
   public GoalTracker() {
     // Instantiate the limelight and limelight network table
     this.limelight = new PhotonCamera("limelight");
+
+    RANGE_MAP.put(new InterpolatingDouble(0.1960), new InterpolatingDouble(3.0));
   }
 
   /**
@@ -80,9 +88,7 @@ public class GoalTracker extends SubsystemBase {
 
   /** Converts the range PhotonVision calculates to a real range to the goal */
   private double photonRangeToRealRange(double photonRange) {
-    // TODO: Implement range mapping
-    double realRange = photonRange;
-    return photonRange;
+    return RANGE_MAP.getInterpolated(new InterpolatingDouble(photonRange)).value;
   }
 
   /** Turns on the Limelight's LEDs */

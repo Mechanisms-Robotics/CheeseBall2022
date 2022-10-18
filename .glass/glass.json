@@ -76,6 +76,7 @@
     }
   },
   "NetworkTables Settings": {
+    "dsClient": false,
     "listenAddress": "10.87.36.2",
     "mode": "Client",
     "serverTeam": "8736"

@@ -16,9 +16,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** This class contains all the code that controls the processor functionality */
 public class Processor extends SubsystemBase {
   // Processor speeds
-  private static final double PROCESSOR_INTAKE_SPEED = 0.5;
-  private static final double PROCESSOR_SLOW_INTAKE_SPEED = 0.25;
-  private static final double PROCESSOR_SHOOT_SPEED = 0.5;
+  private static final double PROCESSOR_INTAKE_SPEED = -0.4;
+  private static final double PROCESSOR_SLOW_INTAKE_SPEED = -0.25;
+  private static final double PROCESSOR_SHOOT_SPEED = -0.75;
 
   // Processor motor
   private final WPI_TalonFX processorMotor = new WPI_TalonFX(30);
@@ -33,8 +33,8 @@ public class Processor extends SubsystemBase {
     final var processorCurrentLimit = new SupplyCurrentLimitConfiguration();
 
     // Configure the settings of the SupplyCurrentLimitConfiguration
-    processorCurrentLimit.currentLimit = 15; // amps
-    processorCurrentLimit.triggerThresholdCurrent = 18; // amps
+    processorCurrentLimit.currentLimit = 25; // amps
+    processorCurrentLimit.triggerThresholdCurrent = 30; // amps
     processorCurrentLimit.triggerThresholdTime = 0.25; // sec
     processorCurrentLimit.enable = true;
 

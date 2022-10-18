@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -9,10 +11,13 @@ public class Robot extends TimedRobot {
 
   private RobotContainer robotContainer;
 
+  private Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
+
   /** Runs once on bootup */
   @Override
   public void robotInit() {
     robotContainer = new RobotContainer();
+    robotContainer.goalTracker.turnOffLEDs();
   }
 
   /** Runs periodically after bootup */
@@ -26,6 +31,9 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     // Turn off the Limelight LEDs
     this.robotContainer.goalTracker.turnOffLEDs();
+
+    // Turn off the compressor
+    this.compressor.disable();
   }
 
   /** Runs periodically while disabled */
@@ -61,6 +69,9 @@ public class Robot extends TimedRobot {
     // Turn on the Limelight LEDs
     this.robotContainer.goalTracker.turnOnLEDs();
 
+    // Turn on the Compressor
+    this.compressor.enableDigital();
+
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
@@ -73,6 +84,12 @@ public class Robot extends TimedRobot {
   /** Runs once at the start of test mode */
   @Override
   public void testInit() {
+    // Turn on the Limelight LEDs
+    this.robotContainer.goalTracker.turnOnLEDs();
+
+    // Turn on the Compressor
+    this.compressor.enableDigital();
+
     // Zero the turret
     this.robotContainer.turret.zero();
 
@@ -85,5 +102,10 @@ public class Robot extends TimedRobot {
 
   /** Runs periodically while test mode is enabled */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    //    this.robotContainer.processor.shoot();
+    //    this.robotContainer.feeder.shoot();
+    //    this.robotContainer.shooter.shoot(3.66); // 3.96
+    //    this.robotContainer.hood.aim(3.66); // 3.96
+  }
 }

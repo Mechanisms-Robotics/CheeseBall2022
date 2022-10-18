@@ -27,15 +27,17 @@ public class Hood extends SubsystemBase {
           * (56.0 / 24.0)
           * (52.0 / 24.0)
           * (36.0 / 18.0); // 350.52:1 reduction
-  private static final double HOOD_FORWARD_LIMIT = Math.toRadians(29.0); // 29 degrees
+  private static final double HOOD_FORWARD_LIMIT = Math.toRadians(25.0); // 29 degrees
   private static final double HOOD_REVERSE_LIMIT = Math.toRadians(0.0); // 0 degrees
-  private static final double HOOD_ALLOWABLE_ERROR = Math.toDegrees(0.5); // 0.5 degrees
+  private static final double HOOD_ALLOWABLE_ERROR = Math.toRadians(0.5); // 0.5 degrees
   private static final double HOOD_ANGLE_LOBF_SLOPE = 3.38;
   private static final double HOOD_ANGLE_LOBF_INTERCEPT = 14.61;
+  private static final double HOOD_INITIAL_ANGLE = 21.0; // 21 degrees
   private static final double HOOD_ERROR_EPSILON = Math.toRadians(1.0); // 1 degree
+  private static final double TUNING_SCALAR = 1.0;
 
   // Hood motor
-  private final WPI_TalonFX hoodMotor = new WPI_TalonFX(70);
+  private final WPI_TalonFX hoodMotor = new WPI_TalonFX(62);
 
   // Hood motor configuration
   private static final TalonFXConfiguration HOOD_MOTOR_CONFIGURATION = new TalonFXConfiguration();
@@ -60,7 +62,8 @@ public class Hood extends SubsystemBase {
 
     // Hood PID configuration
     final var hoodPositionPID = new SlotConfiguration();
-    hoodPositionPID.kP = 0.0;
+    hoodPositionPID.kP = 0.15;
+    hoodPositionPID.kD = 0.4;
     hoodPositionPID.allowableClosedloopError =
         Units.radsToFalcon(HOOD_ALLOWABLE_ERROR, HOOD_GEAR_RATIO);
     HOOD_MOTOR_CONFIGURATION.slot0 = hoodPositionPID;
@@ -80,7 +83,7 @@ public class Hood extends SubsystemBase {
   public Hood() {
     // Configure hood motor
     hoodMotor.configAllSettings(HOOD_MOTOR_CONFIGURATION, startupCanTimeout);
-    hoodMotor.setInverted(TalonFXInvertType.Clockwise);
+    hoodMotor.setInverted(TalonFXInvertType.CounterClockwise);
     hoodMotor.setNeutralMode(NeutralMode.Brake);
     hoodMotor.selectProfileSlot(0, 0);
 
@@ -106,12 +109,15 @@ public class Hood extends SubsystemBase {
     // Set desiredAngle to the clamped value
     this.desiredAngle =
         MathUtil.clamp(
-            Math.toRadians(HOOD_ANGLE_LOBF_SLOPE * range + HOOD_ANGLE_LOBF_INTERCEPT),
+            Math.toRadians(
+                (HOOD_ANGLE_LOBF_SLOPE * range + HOOD_ANGLE_LOBF_INTERCEPT) - HOOD_INITIAL_ANGLE),
             HOOD_REVERSE_LIMIT,
             HOOD_FORWARD_LIMIT);
 
     // PID the hood motor to the desired position
-    hoodMotor.set(ControlMode.Position, Units.radsToFalcon(this.desiredAngle, HOOD_GEAR_RATIO));
+    hoodMotor.set(
+        ControlMode.Position,
+        Units.radsToFalcon(this.desiredAngle, HOOD_GEAR_RATIO) * TUNING_SCALAR);
   }
 
   /** Returns whether the hood is within HOOD_ERROR_EPSILON degrees of it's desired angle */
@@ -136,5 +142,17 @@ public class Hood extends SubsystemBase {
     // Zero the hood motor encoder and set the zeroed flag to true
     hoodMotor.setSelectedSensorPosition(0.0);
     this.zeroed = true;
+  }
+
+  /** Go to zero position */
+  public void goToZero() {
+    // Check if the turret has been zeroed
+    if (!this.zeroed) {
+      // If it hasn't, return
+      return;
+    }
+
+    // PID the hood motor to the zero position
+    hoodMotor.set(ControlMode.Position, Units.radsToFalcon(0.0, HOOD_GEAR_RATIO));
   }
 }

@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
 
   // Intake actuator
   private final DoubleSolenoid intakeActuator =
-      new DoubleSolenoid(PneumaticsModuleType.REVPH, 1, 2);
+      new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 1, 2);
 
   // Intake motor configuration
   private static final TalonFXConfiguration INTAKE_MOTOR_CONFIGURATION = new TalonFXConfiguration();
