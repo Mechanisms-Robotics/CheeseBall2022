@@ -91,7 +91,7 @@ public class AimTurretCommand extends CommandBase {
     Pose2d futurePose =
         estimatedPoseSupplier
             .get()
-            .transformBy(new Transform2d(scaledVelocityVector, headingSupplier.get()));
+            .transformBy(new Transform2d(scaledVelocityVector, new Rotation2d()));
 
     // Get the angle between the future position of the robot and the goal
     Rotation2d targetAngle = new Transform2d(futurePose, target).getRotation();

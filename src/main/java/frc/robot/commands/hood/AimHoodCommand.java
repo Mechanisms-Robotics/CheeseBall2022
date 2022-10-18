@@ -91,7 +91,7 @@ public class AimHoodCommand extends CommandBase {
     Pose2d futurePose =
         estimatedPoseSupplier
             .get()
-            .transformBy(new Transform2d(scaledVelocityVector, headingSupplier.get()));
+            .transformBy(new Transform2d(scaledVelocityVector, new Rotation2d()));
 
     // Calculate what the range to the target is by the time the shot will land
     double futureRange = target.minus(futurePose).getTranslation().getNorm();

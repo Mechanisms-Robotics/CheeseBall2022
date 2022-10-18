@@ -1,23 +1,16 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.TCS34725;
-import frc.robot.util.TCS34725.GainSettings;
-import java.util.Arrays;
-import java.util.List;
 
 /** This class contains all the logic for ball color detection, and comparison to alliance color */
 public class ColorSensor extends SubsystemBase {
-  // Color thresholds
-  private static final List<Double> BLUE_THRESHOLD = Arrays.asList(50.0, 100.0, 50.0);
-  private static final List<Double> RED_THRESHOLD = Arrays.asList(100.0, 50.0, 50.0);
-
-  // Instance of TCS34725
-  private final TCS34725 tcs34725 = new TCS34725(Port.kOnboard);
+  // DIO Sensor Readings
+  private static final DigitalInput redDetected = new DigitalInput(3);
+  private static final DigitalInput blueDetected = new DigitalInput(4);
 
   // Alliance color enum
   private enum AllianceColor {
@@ -44,9 +37,6 @@ public class ColorSensor extends SubsystemBase {
 
   /** Constructor for the ColorSensor class */
   public ColorSensor() {
-    // Set the gain value of the TCS34725
-    tcs34725.setGain(GainSettings.ONE_TIMES);
-
     // Add the options to the alliance color chooser
     allianceColorChooser.addOption("Blue", AllianceColor.BLUE);
     allianceColorChooser.addOption("Red", AllianceColor.RED);
@@ -73,22 +63,10 @@ public class ColorSensor extends SubsystemBase {
   /** Runs periodically and contains the logic for determining ball color */
   @Override
   public void periodic() {
-    // Get the RGB values
-    List<Double> rgb = tcs34725.getRGB();
-
-    // Put the RGB values out to SmartDashboard
-    SmartDashboard.putNumber("Red", rgb.get(0));
-    SmartDashboard.putNumber("Green", rgb.get(1));
-    SmartDashboard.putNumber("Blue", rgb.get(2));
-
     // Determine ball color
-    if (rgb.get(0) <= BLUE_THRESHOLD.get(0)
-        && rgb.get(1) <= BLUE_THRESHOLD.get(1)
-        && rgb.get(2) >= BLUE_THRESHOLD.get(2)) {
+    if (blueDetected.get() && !redDetected.get()) {
       this.ballColor = BallColor.BLUE;
-    } else if (rgb.get(0) >= RED_THRESHOLD.get(0)
-        && rgb.get(1) <= RED_THRESHOLD.get(1)
-        && rgb.get(2) <= RED_THRESHOLD.get(2)) {
+    } else if (redDetected.get() && !blueDetected.get()) {
       this.ballColor = BallColor.RED;
     } else {
       this.ballColor = BallColor.UNDETERMINED;

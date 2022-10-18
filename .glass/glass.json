@@ -62,21 +62,10 @@
         "window": {
           "visible": true
         }
-      },
-      "/SmartDashboard/SendableChooser[0]": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/SendableChooser[1]": {
-        "window": {
-          "visible": true
-        }
       }
     }
   },
   "NetworkTables Settings": {
-    "dsClient": false,
     "listenAddress": "10.87.36.2",
     "mode": "Client",
     "serverTeam": "8736"

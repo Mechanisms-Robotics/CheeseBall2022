@@ -138,26 +138,26 @@ public class Superstructure extends SubsystemBase {
    * simultaneously
    */
   public void periodic() {
-    // Check if the turret is at it's desired angle
-    if (!turretAtDesiredAngleSupplier.get()) {
-      // If it isn't return
-      return;
-    }
-
-    // Check if the hood is at it's desired angle
-    if (!hoodAtDesiredAngleSupplier.get()) {
-      // If it isn't return
-      return;
-    }
-
-    // Check if the shooter is at it's desired RPM
-    if (!shooterAtDesiredSpeedSupplier.get()) {
-      // If it isn't return
-      return;
-    }
-
     // Check what flags are set
     if (this.ejecting) {
+      // Check if the turret is at it's desired angle
+      if (!turretAtDesiredAngleSupplier.get()) {
+        // If it isn't return
+        return;
+      }
+
+      // Check if the hood is at it's desired angle
+      if (!hoodAtDesiredAngleSupplier.get()) {
+        // If it isn't return
+        return;
+      }
+
+      // Check if the shooter is at it's desired RPM
+      if (!shooterAtDesiredSpeedSupplier.get()) {
+        // If it isn't return
+        return;
+      }
+
       processor.stop();
       feeder.eject();
     } else if (this.intaking && !this.shooting) {

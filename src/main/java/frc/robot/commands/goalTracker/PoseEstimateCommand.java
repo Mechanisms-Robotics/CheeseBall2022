@@ -27,7 +27,7 @@ public class PoseEstimateCommand extends CommandBase {
   private final Supplier<Rotation2d> gyroAngleSupplier;
 
   // Transforms
-  private static final Rotation2d TURRET_TO_ROBOT = Rotation2d.fromDegrees(-90.0);
+  private static final Rotation2d TURRET_TO_ROBOT = Rotation2d.fromDegrees(90.0);
   private static final Pose2d GOAL_POSE =
       new Pose2d(new Translation2d(8.23, 4.12), new Rotation2d());
 
@@ -79,7 +79,7 @@ public class PoseEstimateCommand extends CommandBase {
     Rotation2d targetRobotAngle = targetTurretAngle.rotateBy(TURRET_TO_ROBOT);
 
     // Rotate that by the current gyro angle to make the angle field relative
-    Rotation2d targetFieldAngle = targetRobotAngle.rotateBy(gyroAngleSupplier.get());
+    Rotation2d targetFieldAngle = targetRobotAngle.rotateBy(gyroAngleSupplier.get().unaryMinus());
 
     // Get the position of the goal relative to the robot as a Transform2d
     Transform2d targetRobotTransform =

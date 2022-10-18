@@ -165,8 +165,7 @@ public class Swerve extends SubsystemBase {
   public void periodic() {
     poseEstimator.update(
         getHeading(),
-        new SwerveModuleState(
-            flModule.getDriveVelocity(), new Rotation2d(flModule.getSteerAngle())),
+        flModule.getState(),
         frModule.getState(),
         blModule.getState(),
         brModule.getState());
