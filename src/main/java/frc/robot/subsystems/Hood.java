@@ -34,7 +34,7 @@ public class Hood extends SubsystemBase {
   private static final double HOOD_ANGLE_LOBF_INTERCEPT = 14.61;
   private static final double HOOD_INITIAL_ANGLE = 21.0; // 21 degrees
   private static final double HOOD_ERROR_EPSILON = Math.toRadians(1.0); // 1 degree
-  private static final double TUNING_SCALAR = 1.0;
+  private static final double TUNING_SCALAR = 1.2;
 
   // Hood motor
   private final WPI_TalonFX hoodMotor = new WPI_TalonFX(62);

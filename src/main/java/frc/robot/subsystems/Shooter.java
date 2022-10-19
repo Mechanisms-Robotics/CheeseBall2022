@@ -25,7 +25,7 @@ public class Shooter extends SubsystemBase {
   private static final double SHOOTER_RPM_LOBF_SLOPE = 123.11;
   private static final double SHOOTER_RPM_LOBF_INTERCEPT = 1080.82;
   private static final double SHOOTER_ERROR_EPSILON = 10; // RPM
-  private static final double TUNING_SCALAR = 1.22;
+  private static final double TUNING_SCALAR = 1.2;
 
   // Shooter motors
   private final WPI_TalonFX shooterMotor = new WPI_TalonFX(60);
@@ -41,19 +41,21 @@ public class Shooter extends SubsystemBase {
     final var shooterCurrentLimit = new SupplyCurrentLimitConfiguration();
     shooterCurrentLimit.currentLimit = 40; // Amps
     shooterCurrentLimit.triggerThresholdCurrent = 45; // Amps
-    shooterCurrentLimit.triggerThresholdTime = 0.5; // sec
+    shooterCurrentLimit.triggerThresholdTime = 1.0; // sec
     shooterCurrentLimit.enable = true;
     SHOOTER_MOTOR_CONFIGURATION.supplyCurrLimit = shooterCurrentLimit;
 
     // Shooter motors PID configuration
     final var shooterPID = new SlotConfiguration();
-    shooterPID.kP = 0.15;
+    shooterPID.kP = 0.3;
     shooterPID.kF = 0.055;
     SHOOTER_MOTOR_CONFIGURATION.slot0 = shooterPID;
 
     // Configure shooter motors velocity measurement
     SHOOTER_MOTOR_CONFIGURATION.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_2Ms;
     SHOOTER_MOTOR_CONFIGURATION.velocityMeasurementWindow = 4;
+
+    SHOOTER_MOTOR_CONFIGURATION.voltageCompSaturation = 10.5; // volts
   }
 
   // Desired RPM
@@ -66,12 +68,14 @@ public class Shooter extends SubsystemBase {
     shooterMotor.setInverted(TalonFXInvertType.Clockwise);
     shooterMotor.setNeutralMode(NeutralMode.Coast);
     shooterMotor.selectProfileSlot(0, 0);
+    shooterMotor.enableVoltageCompensation(true);
 
     // Configure shooter follower motor
     shooterFollowerMotor.configAllSettings(SHOOTER_MOTOR_CONFIGURATION, startupCanTimeout);
     shooterFollowerMotor.follow(shooterMotor);
     shooterFollowerMotor.setInverted(InvertType.OpposeMaster);
     shooterFollowerMotor.setNeutralMode(NeutralMode.Coast);
+    shooterMotor.enableVoltageCompensation(true);
 
     // CAN bus utilization optimisation
     shooterMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 20);

@@ -51,7 +51,7 @@ public class AimTurretCommand extends CommandBase {
   @Override
   public void execute() {
     // If the robot has not been localized and not seen a target return
-    if (!(hasBeenLocalizedSupplier.get() && hasSeenTargetSupplier.get())) {
+    if (!hasBeenLocalizedSupplier.get() && !hasSeenTargetSupplier.get()) {
       return;
     }
 
@@ -93,11 +93,17 @@ public class AimTurretCommand extends CommandBase {
             .get()
             .transformBy(new Transform2d(scaledVelocityVector, new Rotation2d()));
 
+    // Get vector between future pose and target pose
+    Translation2d deltaTargetVec = target.getTranslation().minus(futurePose.getTranslation());
+
     // Get the angle between the future position of the robot and the goal
-    Rotation2d targetAngle = new Transform2d(futurePose, target).getRotation();
+    Rotation2d targetAngle = new Rotation2d(deltaTargetVec.getX(), deltaTargetVec.getY());
+
+    // Rotate that by the inverse of the gyro angle to get a robot relative angle
+    Rotation2d robotAngle = headingSupplier.get().rotateBy(targetAngle.unaryMinus()).unaryMinus();
 
     // Rotate that by the angle between the robot front and turret front
-    Rotation2d turretAngle = targetAngle.rotateBy(Constants.ROBOT_TO_TURRET);
+    Rotation2d turretAngle = robotAngle.rotateBy(Constants.ROBOT_TO_TURRET.unaryMinus());
 
     // Aim the turret at that angle
     turret.aim(turretAngle.getRadians());

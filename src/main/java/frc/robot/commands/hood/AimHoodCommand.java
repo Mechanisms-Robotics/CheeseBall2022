@@ -51,7 +51,7 @@ public class AimHoodCommand extends CommandBase {
   @Override
   public void execute() {
     // If the robot has not been localized and not seen a target return
-    if (!(hasBeenLocalizedSupplier.get() && hasSeenTargetSupplier.get())) {
+    if (!hasBeenLocalizedSupplier.get() && !hasSeenTargetSupplier.get()) {
       return;
     }
 

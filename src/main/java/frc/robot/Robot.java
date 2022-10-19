@@ -1,5 +1,8 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -102,10 +105,5 @@ public class Robot extends TimedRobot {
 
   /** Runs periodically while test mode is enabled */
   @Override
-  public void testPeriodic() {
-    //    this.robotContainer.processor.shoot();
-    //    this.robotContainer.feeder.shoot();
-    //    this.robotContainer.shooter.shoot(3.66); // 3.96
-    //    this.robotContainer.hood.aim(3.66); // 3.96
-  }
+  public void testPeriodic() {}
 }

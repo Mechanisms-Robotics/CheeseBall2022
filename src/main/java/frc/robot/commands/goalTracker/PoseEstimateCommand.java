@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.GoalTracker;
 import frc.robot.subsystems.GoalTracker.TargetData;
@@ -30,6 +32,8 @@ public class PoseEstimateCommand extends CommandBase {
   private static final Rotation2d TURRET_TO_ROBOT = Rotation2d.fromDegrees(90.0);
   private static final Pose2d GOAL_POSE =
       new Pose2d(new Translation2d(8.23, 4.12), new Rotation2d());
+
+  private static final Field2d visionPoseField2d = new Field2d();
 
   /** Constructor of a PoseEstimateCommand */
   public PoseEstimateCommand(
@@ -64,7 +68,12 @@ public class PoseEstimateCommand extends CommandBase {
 
       // Add the estimated pose to the pose estimator
       poseEstimator.addVisionMeasurement(estimatedPose, Timer.getFPGATimestamp());
+
+      visionPoseField2d.setRobotPose(estimatedPose);
     }
+
+    // Put the Field2d instance on the SmartDashboard
+    SmartDashboard.putData("Vision Field", visionPoseField2d);
   }
 
   /** Estimates the robot pose based on the angle and range from the Limelight to the target */
@@ -76,7 +85,9 @@ public class PoseEstimateCommand extends CommandBase {
     Rotation2d targetTurretAngle = turretAngle.rotateBy(angle);
 
     // Rotate that by TURRET_TO_ROBOT to make the angle robot relative
-    Rotation2d targetRobotAngle = targetTurretAngle.rotateBy(TURRET_TO_ROBOT);
+    Rotation2d targetRobotAngle =
+        TURRET_TO_ROBOT.rotateBy(
+            targetTurretAngle.unaryMinus()); // targetTurretAngle.rotateBy(TURRET_TO_ROBOT);
 
     // Rotate that by the current gyro angle to make the angle field relative
     Rotation2d targetFieldAngle = targetRobotAngle.rotateBy(gyroAngleSupplier.get().unaryMinus());

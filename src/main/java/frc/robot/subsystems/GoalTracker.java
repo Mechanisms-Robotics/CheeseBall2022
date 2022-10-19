@@ -1,10 +1,9 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.InterpolatingDouble;
-import frc.robot.util.InterpolatingTreeMap;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.common.hardware.VisionLEDMode;
@@ -18,7 +17,7 @@ public class GoalTracker extends SubsystemBase {
   // Limelight constants
   private static final double TARGET_HEIGHT = 2.64; // meters
   private static final double CAMERA_HEIGHT = 0.99; // meters
-  private static final double CAMERA_PITCH = Math.toRadians(70.0); // radians
+  private static final double CAMERA_PITCH = Math.toRadians(20.0); // radians
 
   /** This class is used as a structure for target data */
   public static class TargetData {
@@ -33,16 +32,10 @@ public class GoalTracker extends SubsystemBase {
   // Has seen target flag
   private boolean hasSeenTarget = true;
 
-  // Range interpolating tree map
-  private static final InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> RANGE_MAP =
-      new InterpolatingTreeMap<>();
-
   /** Constructor for the GoalTracker class */
   public GoalTracker() {
     // Instantiate the limelight and limelight network table
     this.limelight = new PhotonCamera("limelight");
-
-    RANGE_MAP.put(new InterpolatingDouble(0.1960), new InterpolatingDouble(3.0));
   }
 
   /**
@@ -88,7 +81,7 @@ public class GoalTracker extends SubsystemBase {
 
   /** Converts the range PhotonVision calculates to a real range to the goal */
   private double photonRangeToRealRange(double photonRange) {
-    return RANGE_MAP.getInterpolated(new InterpolatingDouble(photonRange)).value;
+    return photonRange * 1.392;
   }
 
   /** Turns on the Limelight's LEDs */
@@ -112,5 +105,13 @@ public class GoalTracker extends SubsystemBase {
   /** Returns whether the GoalTracker has seen a target or not */
   public boolean hasSeenTarget() {
     return this.hasSeenTarget;
+  }
+
+  public boolean hasTarget() {
+    // Get the latest result from the Limelight
+    PhotonPipelineResult limelightResult = this.limelight.getLatestResult();
+
+    // Return whether the robot has a target or not
+    return limelightResult.hasTargets();
   }
 }

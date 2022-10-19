@@ -24,7 +24,7 @@ public class Turret extends SubsystemBase {
       (225.0 / 30.0) * (56.0 / 30.0) * (64.0 / 30.0) * (56.0 / 30.0); // 55.75:1 reduction
 
   private static final double TURRET_FORWARD_LIMIT = Math.toRadians(90.0); // 90 degrees
-  private static final double TURRET_REVERSE_LIMIT = Math.toRadians(-90.0); // -90 degrees
+  private static final double TURRET_REVERSE_LIMIT = Math.toRadians(0.0); // -90 degrees
   private static final double TURRET_ALLOWABLE_ERROR = Math.toRadians(3.0); // 3 degrees
   private static final double TURRET_ERROR_EPSILON = Math.toRadians(3.0); // 3 degrees
 
@@ -75,7 +75,7 @@ public class Turret extends SubsystemBase {
   public Turret() {
     // Configure intake motor
     turretMotor.configAllSettings(TURRET_MOTOR_CONFIGURATION, startupCanTimeout);
-    turretMotor.setInverted(TalonFXInvertType.Clockwise);
+    turretMotor.setInverted(TalonFXInvertType.CounterClockwise);
     turretMotor.setNeutralMode(NeutralMode.Brake);
     turretMotor.selectProfileSlot(0, 0);
 

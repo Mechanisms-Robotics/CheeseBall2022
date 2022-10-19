@@ -8,7 +8,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.colorSensor.ToggleOverrideColorSensorCommand;
 import frc.robot.commands.hood.AimHoodCommand;
+import frc.robot.commands.hood.AimHoodWithLLCommand;
 import frc.robot.commands.shooter.AimShooterCommand;
+import frc.robot.commands.shooter.AimShooterWithLLCommand;
 import frc.robot.commands.superstructure.EjectCommand;
 import frc.robot.commands.superstructure.StopEjectingCommand;
 import frc.robot.commands.superstructure.ToggleOverrideSensorsCommand;
@@ -25,6 +27,7 @@ import frc.robot.commands.auto.FiveBallMovingAutoCommand;
 import frc.robot.commands.auto.SixBallAutoCommand;
 import frc.robot.commands.auto.SixBallMovingAutoCommand;
 import frc.robot.commands.swerve.DriveTeleopCommand;
+import frc.robot.commands.turret.AimTurretWithLLCommand;
 import frc.robot.subsystems.ColorSensor;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.GoalTracker;
@@ -41,7 +44,7 @@ import frc.robot.util.ControllerWrapper.Direction;
 /** This class contains all the subsystems, command bindings, and button bindings */
 public class RobotContainer {
   // Subsystems
-  private final Swerve swerve = new Swerve();
+  public final Swerve swerve = new Swerve();
   private final Intake intake = new Intake();
   public final Processor processor = new Processor();
   public final Feeder feeder =
@@ -177,38 +180,50 @@ public class RobotContainer {
         new PoseEstimateCommand(
             goalTracker, swerve.poseEstimator, turret::getAngle, swerve::getHeading));
 
-    // Set the default turret command to an AimTurretCommand
+    // TODO: Remove me
+    //    shooter.setDefaultCommand(
+    //        new AimShooterWithLLCommand(
+    //            shooter, () -> goalTracker.getCurrentTarget().range, goalTracker::hasTarget));
+    //    hood.setDefaultCommand(
+    //        new AimHoodWithLLCommand(
+    //            hood, () -> goalTracker.getCurrentTarget().range, goalTracker::hasTarget));
+    //
     //    turret.setDefaultCommand(
-    //        new AimTurretCommand(
-    //            turret,
-    //            swerve::getPose,
-    //            swerve::getSpeeds,
-    //            swerve::getHeading,
-    //            () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
-    //            swerve::hasBeenLocalized,
-    //            goalTracker::hasSeenTarget));
+    //        new AimTurretWithLLCommand(
+    //            turret, () -> goalTracker.getCurrentTarget().angle, goalTracker::hasTarget));
+
+    // Set the default turret command to an AimTurretCommand
+    turret.setDefaultCommand(
+        new AimTurretCommand(
+            turret,
+            swerve::getPose,
+            swerve::getSpeeds,
+            swerve::getHeading,
+            () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
+            swerve::hasBeenLocalized,
+            goalTracker::hasSeenTarget));
 
     // Set the default shooter command to an AimShooterCommand
-    //    shooter.setDefaultCommand(
-    //        new AimShooterCommand(
-    //            shooter,
-    //            swerve::getPose,
-    //            swerve::getSpeeds,
-    //            swerve::getHeading,
-    //            () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
-    //            swerve::hasBeenLocalized,
-    //            goalTracker::hasSeenTarget));
+    shooter.setDefaultCommand(
+        new AimShooterCommand(
+            shooter,
+            swerve::getPose,
+            swerve::getSpeeds,
+            swerve::getHeading,
+            () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
+            swerve::hasBeenLocalized,
+            goalTracker::hasSeenTarget));
 
     // Set the default hood command to an AimHoodCommand
-    //    hood.setDefaultCommand(
-    //        new AimHoodCommand(
-    //            hood,
-    //            swerve::getPose,
-    //            swerve::getSpeeds,
-    //            swerve::getHeading,
-    //            () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
-    //            swerve::hasBeenLocalized,
-    //            goalTracker::hasSeenTarget));
+    hood.setDefaultCommand(
+        new AimHoodCommand(
+            hood,
+            swerve::getPose,
+            swerve::getSpeeds,
+            swerve::getHeading,
+            () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
+            swerve::hasBeenLocalized,
+            goalTracker::hasSeenTarget));
   }
 
   /** Returns the command to run during autonomous */
