@@ -23,6 +23,7 @@ public class GoalTracker extends SubsystemBase {
   public static class TargetData {
     public boolean hasTarget = false;
     public Rotation2d angle;
+    public double pitch; // rads
     public double range;
   }
 
@@ -65,6 +66,7 @@ public class GoalTracker extends SubsystemBase {
                   TARGET_HEIGHT,
                   CAMERA_PITCH,
                   Math.toRadians(bestTarget.getPitch())));
+      this.currentTarget.pitch = Math.toRadians(bestTarget.getPitch());
 
       // Output the current target data to SmartDashboard
       SmartDashboard.putBoolean("Has Target", this.currentTarget.hasTarget);
@@ -81,7 +83,7 @@ public class GoalTracker extends SubsystemBase {
 
   /** Converts the range PhotonVision calculates to a real range to the goal */
   private double photonRangeToRealRange(double photonRange) {
-    return photonRange * 1.392;
+    return photonRange * 1.217;
   }
 
   /** Turns on the Limelight's LEDs */

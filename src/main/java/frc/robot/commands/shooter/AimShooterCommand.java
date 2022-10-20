@@ -99,6 +99,6 @@ public class AimShooterCommand extends CommandBase {
     double futureRange = target.minus(futurePose).getTranslation().getNorm();
 
     // Vary the shooter RPM based on the calculated future range
-    shooter.shoot(futureRange);
+    shooter.shoot(futureRange * 1.1);
   }
 }

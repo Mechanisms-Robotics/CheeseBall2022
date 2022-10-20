@@ -97,6 +97,6 @@ public class AimHoodCommand extends CommandBase {
     double futureRange = target.minus(futurePose).getTranslation().getNorm();
 
     // Aim the hood at a calculated angle based on the future range to the goal
-    hood.aim(futureRange);
+    hood.aim(futureRange * 1.1);
   }
 }

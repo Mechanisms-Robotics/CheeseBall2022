@@ -192,7 +192,7 @@ public class RobotContainer {
     //        new AimTurretWithLLCommand(
     //            turret, () -> goalTracker.getCurrentTarget().angle, goalTracker::hasTarget));
 
-    // Set the default turret command to an AimTurretCommand
+    //     Set the default turret command to an AimTurretCommand
     turret.setDefaultCommand(
         new AimTurretCommand(
             turret,
@@ -203,7 +203,7 @@ public class RobotContainer {
             swerve::hasBeenLocalized,
             goalTracker::hasSeenTarget));
 
-    // Set the default shooter command to an AimShooterCommand
+    //     Set the default shooter command to an AimShooterCommand
     shooter.setDefaultCommand(
         new AimShooterCommand(
             shooter,
@@ -214,7 +214,7 @@ public class RobotContainer {
             swerve::hasBeenLocalized,
             goalTracker::hasSeenTarget));
 
-    // Set the default hood command to an AimHoodCommand
+    //     Set the default hood command to an AimHoodCommand
     hood.setDefaultCommand(
         new AimHoodCommand(
             hood,

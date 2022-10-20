@@ -12,12 +12,18 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.GoalTracker;
 import frc.robot.subsystems.GoalTracker.TargetData;
 import java.util.function.Supplier;
+import javax.xml.crypto.dsig.Transform;
+import org.photonvision.PhotonUtils;
 
 /**
  * This command uses vision localization to estimate a robot pose and updates the
  * SwerveDrivePoseEstimator with the estimated vision pose
  */
 public class PoseEstimateCommand extends CommandBase {
+  private static final double TARGET_HEIGHT = 2.64; // meters
+  private static final double CAMERA_HEIGHT = 0.99; // meters
+  private static final double CAMERA_PITCH = Math.toRadians(20.0); // radians
+
   // Instance of GoalTracker
   private final GoalTracker goalTracker;
 
@@ -76,31 +82,24 @@ public class PoseEstimateCommand extends CommandBase {
     SmartDashboard.putData("Vision Field", visionPoseField2d);
   }
 
+  Transform2d cameraToTurret = new Transform2d(new Translation2d(0.18415, 0.0), new Rotation2d());
+  Transform2d turretToRobot = new Transform2d(new Translation2d(0.2032, 0.0), new Rotation2d());
+
+  Transform2d cameraToRobot = turretToRobot.plus(turretToRobot);
+
   /** Estimates the robot pose based on the angle and range from the Limelight to the target */
   private Pose2d estimateRobotPose(Rotation2d angle, double range) {
-    // Get the current turret angle
-    Rotation2d turretAngle = new Rotation2d(turretAngleSupplier.get());
-
-    // Rotate it by the angle to the target
-    Rotation2d targetTurretAngle = turretAngle.rotateBy(angle);
-
-    // Rotate that by TURRET_TO_ROBOT to make the angle robot relative
-    Rotation2d targetRobotAngle =
-        TURRET_TO_ROBOT.rotateBy(
-            targetTurretAngle.unaryMinus()); // targetTurretAngle.rotateBy(TURRET_TO_ROBOT);
-
-    // Rotate that by the current gyro angle to make the angle field relative
-    Rotation2d targetFieldAngle = targetRobotAngle.rotateBy(gyroAngleSupplier.get().unaryMinus());
-
-    // Get the position of the goal relative to the robot as a Transform2d
-    Transform2d targetRobotTransform =
-        new Transform2d(
-            new Translation2d(
-                -range * Math.cos(targetFieldAngle.getRadians()),
-                -range * Math.sin(targetFieldAngle.getRadians())),
-            new Rotation2d());
-
-    // Return the position of the robot based off of the known position of the goal
-    return GOAL_POSE.transformBy(targetRobotTransform);
+    return PhotonUtils.estimateFieldToRobot(
+        CAMERA_HEIGHT,
+        TARGET_HEIGHT,
+        CAMERA_PITCH,
+        goalTracker.getCurrentTarget().pitch,
+        goalTracker.getCurrentTarget().angle,
+        gyroAngleSupplier
+            .get()
+            .rotateBy(
+                Rotation2d.fromDegrees(-90.0).rotateBy(new Rotation2d(turretAngleSupplier.get()))),
+        GOAL_POSE,
+        turretToRobot);
   }
 }

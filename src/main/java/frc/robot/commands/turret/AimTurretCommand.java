@@ -106,6 +106,6 @@ public class AimTurretCommand extends CommandBase {
     Rotation2d turretAngle = robotAngle.rotateBy(Constants.ROBOT_TO_TURRET.unaryMinus());
 
     // Aim the turret at that angle
-    turret.aim(turretAngle.getRadians());
+    turret.aim(turretAngle.getRadians() + Math.toRadians(-2.0));
   }
 }

@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.auto.AutoCommands.ResetPose;
 
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
@@ -98,6 +99,10 @@ public class Robot extends TimedRobot {
 
     // Zero the hood
     this.robotContainer.hood.zero();
+
+    //    this.robotContainer.swerve.setPose(
+    //        new Pose2d(new Translation2d(7.64, 1.88), Rotation2d.fromDegrees(-90.0)),
+    //        Rotation2d.fromDegrees(-90.0));
 
     // Cancel all commands
     CommandScheduler.getInstance().cancelAll();

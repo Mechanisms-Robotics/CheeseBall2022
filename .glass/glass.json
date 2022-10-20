@@ -13,8 +13,10 @@
         },
         "Front Right Module": {
           "open": true
-        }
-      }
+        },
+        "open": true
+      },
+      "open": true
     },
     "SmartDashboard": {
       "open": true
@@ -72,7 +74,10 @@
         }
       },
       "/SmartDashboard/Vision Field": {
-        "image": "C:\\Users\\Jonathan Emery\\The Mechanisms\\2022-field.png"
+        "image": "C:\\Users\\Jonathan Emery\\The Mechanisms\\2022-field.png",
+        "window": {
+          "visible": true
+        }
       }
     }
   },
