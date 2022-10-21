@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.GoalTracker;
 import frc.robot.subsystems.GoalTracker.TargetData;
 import java.util.function.Supplier;
-import javax.xml.crypto.dsig.Transform;
 import org.photonvision.PhotonUtils;
 
 /**
@@ -24,6 +23,8 @@ public class PoseEstimateCommand extends CommandBase {
   private static final double TARGET_HEIGHT = 2.68; // meters
   private static final double CAMERA_HEIGHT = 0.99; // meters
   private static final double CAMERA_PITCH = Math.toRadians(20.0); // radians
+
+  private static final double STRAY_POSE_ALLOWABLE_RADIUS = 2.5; // meters
 
   // Instance of GoalTracker
   private final GoalTracker goalTracker;
@@ -41,6 +42,8 @@ public class PoseEstimateCommand extends CommandBase {
       new Pose2d(new Translation2d(8.23, 4.12), new Rotation2d());
 
   private static final Field2d visionPoseField2d = new Field2d();
+
+  private Pose2d previousPose;
 
   /** Constructor of a PoseEstimateCommand */
   public PoseEstimateCommand(
@@ -72,6 +75,13 @@ public class PoseEstimateCommand extends CommandBase {
     if (currentTarget.hasTarget) {
       // If it does estimate the robot pose
       Pose2d estimatedPose = estimateRobotPose();
+
+      // If stray pose, don't send current vision pose
+      if (isStrayPose(estimatedPose)) {
+        return;
+      }
+
+      this.previousPose = estimatedPose;
 
       // Add the estimated pose to the pose estimator
       poseEstimator.addVisionMeasurement(estimatedPose, Timer.getFPGATimestamp());
@@ -112,5 +122,13 @@ public class PoseEstimateCommand extends CommandBase {
             GOAL_POSE.getTranslation().minus(goalVec.times(1.21)), photonEstimate.getRotation());
 
     return scaledPose;
+  }
+
+  /** Tests if the current vision-estimated pose is spurious by testing whether the pose is in a certain allowable radius from the previous pose */
+  private boolean isStrayPose(Pose2d currentPose) {
+    if (this.previousPose == null)
+      return false;
+
+    return currentPose.relativeTo(this.previousPose).getTranslation().getNorm() >= STRAY_POSE_ALLOWABLE_RADIUS;
   }
 }
