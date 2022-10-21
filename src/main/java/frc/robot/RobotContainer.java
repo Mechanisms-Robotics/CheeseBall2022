@@ -13,7 +13,9 @@ import frc.robot.commands.shooter.AimShooterCommand;
 import frc.robot.commands.shooter.AimShooterWithLLCommand;
 import frc.robot.commands.superstructure.EjectCommand;
 import frc.robot.commands.superstructure.StopEjectingCommand;
+import frc.robot.commands.superstructure.StopUnjammingCommand;
 import frc.robot.commands.superstructure.ToggleOverrideSensorsCommand;
+import frc.robot.commands.superstructure.UnjamCommand;
 import frc.robot.commands.turret.AimTurretCommand;
 import frc.robot.commands.superstructure.IntakeCommand;
 import frc.robot.commands.goalTracker.PoseEstimateCommand;
@@ -48,7 +50,10 @@ public class RobotContainer {
   private final Intake intake = new Intake();
   public final Processor processor = new Processor();
   public final Feeder feeder =
-      new Feeder(processor.feederBottomSensor::get, processor.feederTopSensor::get);
+      new Feeder(
+          processor.processorSensor::get,
+          processor.feederBottomSensor::get,
+          processor.feederTopSensor::get);
   public final Turret turret = new Turret();
   public final Shooter shooter = new Shooter();
   public final Hood hood = new Hood();
@@ -80,10 +85,13 @@ public class RobotContainer {
   private final Button shootButton = new Button(driverController::getRightTriggerButton);
   private final Button toggleSmartShootButton = new Button(driverController::getRightBumperButton);
   private final Button manualEjectButton = new Button(driverController::getXButton);
+  private final Button unjamButton = new Button(driverController::getTriangleButton);
   private final Button toggleOverrideProximitySensors =
       new Button(() -> driverController.getPOV() == Direction.Down);
   private final Button toggleOverrideColorSensor =
       new Button(() -> driverController.getPOV() == Direction.Up);
+
+  private final Button toggleAimingMode = new Button(driverController::getRightBumperButton);
 
   // Autos Enumerator
   private enum Autos {
@@ -156,6 +164,12 @@ public class RobotContainer {
     // When the manual eject button is released run a StopEjectingCommand
     manualEjectButton.whenReleased(new StopEjectingCommand(superstructure));
 
+    // When the unjam button is pressed run an UnjamCommand
+    unjamButton.whenPressed(new UnjamCommand(superstructure));
+
+    // When the unjam button is released run a StopUnjammingCommand
+    unjamButton.whenReleased(new StopUnjammingCommand(superstructure));
+
     // When the toggle override proximity sensors button is pressed run a
     // ToggleOverrideSensorsCommand
     toggleOverrideProximitySensors.whenPressed(new ToggleOverrideSensorsCommand(superstructure));
@@ -180,19 +194,7 @@ public class RobotContainer {
         new PoseEstimateCommand(
             goalTracker, swerve.poseEstimator, turret::getAngle, swerve::getHeading));
 
-    // TODO: Remove me
-    //    shooter.setDefaultCommand(
-    //        new AimShooterWithLLCommand(
-    //            shooter, () -> goalTracker.getCurrentTarget().range, goalTracker::hasTarget));
-    //    hood.setDefaultCommand(
-    //        new AimHoodWithLLCommand(
-    //            hood, () -> goalTracker.getCurrentTarget().range, goalTracker::hasTarget));
-    //
-    //    turret.setDefaultCommand(
-    //        new AimTurretWithLLCommand(
-    //            turret, () -> goalTracker.getCurrentTarget().angle, goalTracker::hasTarget));
-
-    //     Set the default turret command to an AimTurretCommand
+    // Set the default turret command to an AimTurretCommand
     turret.setDefaultCommand(
         new AimTurretCommand(
             turret,
@@ -201,9 +203,12 @@ public class RobotContainer {
             swerve::getHeading,
             () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
             swerve::hasBeenLocalized,
-            goalTracker::hasSeenTarget));
+            goalTracker::hasSeenTarget,
+            () -> goalTracker.getCurrentTarget().angle,
+            goalTracker::hasTarget,
+            toggleAimingMode::get));
 
-    //     Set the default shooter command to an AimShooterCommand
+    // Set the default shooter command to an AimShooterCommand
     shooter.setDefaultCommand(
         new AimShooterCommand(
             shooter,
@@ -212,9 +217,12 @@ public class RobotContainer {
             swerve::getHeading,
             () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
             swerve::hasBeenLocalized,
-            goalTracker::hasSeenTarget));
+            goalTracker::hasSeenTarget,
+            () -> goalTracker.getCurrentTarget().range,
+            goalTracker::hasTarget,
+            toggleAimingMode::get));
 
-    //     Set the default hood command to an AimHoodCommand
+    // t Set the default hood command to an AimHoodCommand
     hood.setDefaultCommand(
         new AimHoodCommand(
             hood,
@@ -223,7 +231,20 @@ public class RobotContainer {
             swerve::getHeading,
             () -> (manualEjectButton.get() || colorSensor.isWrongColor()),
             swerve::hasBeenLocalized,
-            goalTracker::hasSeenTarget));
+            goalTracker::hasSeenTarget,
+            () -> goalTracker.getCurrentTarget().range,
+            goalTracker::hasTarget,
+            toggleAimingMode::get));
+
+    //    shooter.setDefaultCommand(
+    //        new AimShooterWithLLCommand(
+    //            shooter, () -> goalTracker.getCurrentTarget().range, goalTracker::hasTarget));
+    //    hood.setDefaultCommand(
+    //        new AimHoodWithLLCommand(
+    //            hood, () -> goalTracker.getCurrentTarget().range, goalTracker::hasTarget));
+    //    turret.setDefaultCommand(
+    //        new AimTurretWithLLCommand(
+    //            turret, () -> goalTracker.getCurrentTarget().angle, goalTracker::hasTarget));
   }
 
   /** Returns the command to run during autonomous */

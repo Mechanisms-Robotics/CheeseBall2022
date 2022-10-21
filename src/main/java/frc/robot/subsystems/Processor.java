@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Processor extends SubsystemBase {
   // Processor speeds
   private static final double PROCESSOR_INTAKE_SPEED = -0.4;
-  private static final double PROCESSOR_SLOW_INTAKE_SPEED = -0.25;
   private static final double PROCESSOR_SHOOT_SPEED = -0.75;
+  private static final double PROCESSOR_UNJAM_SPEED = 0.5;
 
   // Processor motor
   private final WPI_TalonFX processorMotor = new WPI_TalonFX(30);
@@ -45,7 +45,7 @@ public class Processor extends SubsystemBase {
   }
 
   // Proximity sensors
-  private final DigitalInput processorSensor = new DigitalInput(0);
+  public final DigitalInput processorSensor = new DigitalInput(0);
   public final DigitalInput feederBottomSensor = new DigitalInput(1);
   public final DigitalInput feederTopSensor = new DigitalInput(2);
 
@@ -89,16 +89,19 @@ public class Processor extends SubsystemBase {
     boolean processorSensorTriggered = !processorSensor.get();
 
     // Check which sensors are triggered
-    if (this.overrideSensors || !(feederTopSensorTriggered && feederBottomSensorTriggered)) {
+    if (this.overrideSensors
+        || !(processorSensorTriggered && feederBottomSensorTriggered && feederTopSensorTriggered)) {
       // If the robot doesn't have two balls yet run processor at PROCESSOR_INTAKE_SPEED
       processorMotor.set(ControlMode.PercentOutput, PROCESSOR_INTAKE_SPEED);
-    } else if (!processorSensorTriggered) {
-      // If the robot has two but not three balls yet run processor at PROCESSOR_SLOW_INTAKE_SPEED
-      processorMotor.set(ControlMode.PercentOutput, PROCESSOR_SLOW_INTAKE_SPEED);
     } else {
       // If the robot has three balls stop the processor
       processorMotor.set(ControlMode.PercentOutput, 0.0);
     }
+  }
+
+  /** Unjams the processor */
+  public void unjam() {
+    processorMotor.set(ControlMode.PercentOutput, PROCESSOR_UNJAM_SPEED);
   }
 
   /** Runs the processor at it's shooting speed */

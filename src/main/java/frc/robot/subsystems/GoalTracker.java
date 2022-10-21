@@ -15,7 +15,8 @@ public class GoalTracker extends SubsystemBase {
   private final PhotonCamera limelight;
 
   // Limelight constants
-  private static final double TARGET_HEIGHT = 2.64; // meters
+  // TODO: Change me back to 2.64
+  private static final double TARGET_HEIGHT = 2.68; // meters
   private static final double CAMERA_HEIGHT = 0.99; // meters
   private static final double CAMERA_PITCH = Math.toRadians(20.0); // radians
 
@@ -31,7 +32,7 @@ public class GoalTracker extends SubsystemBase {
   private final TargetData currentTarget = new TargetData();
 
   // Has seen target flag
-  private boolean hasSeenTarget = true;
+  private boolean hasSeenTarget = false;
 
   /** Constructor for the GoalTracker class */
   public GoalTracker() {
@@ -79,11 +80,13 @@ public class GoalTracker extends SubsystemBase {
       // Output the current target has target value to SmartDashboard
       SmartDashboard.putBoolean("Has Target", this.currentTarget.hasTarget);
     }
+
+    SmartDashboard.putBoolean("Seen Target", this.hasSeenTarget);
   }
 
   /** Converts the range PhotonVision calculates to a real range to the goal */
   private double photonRangeToRealRange(double photonRange) {
-    return photonRange * 1.217;
+    return photonRange * 1.4;
   }
 
   /** Turns on the Limelight's LEDs */

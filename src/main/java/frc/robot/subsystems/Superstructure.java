@@ -33,6 +33,7 @@ public class Superstructure extends SubsystemBase {
   private boolean shooting = false;
   private boolean smart = false;
   private boolean ejecting = false;
+  private boolean unjamming = false;
 
   /** Constructor for the Superstructure class */
   public Superstructure(
@@ -133,13 +134,27 @@ public class Superstructure extends SubsystemBase {
     this.ejecting = false;
   }
 
+  /** Sets the unjamming flag to true */
+  public void unjam() {
+    this.unjamming = true;
+  }
+
+  /** Sets the unjamming flag to false */
+  public void stopUnjamming() {
+    this.unjamming = false;
+  }
+
   /**
    * Runs periodically and contains the logic for how to handle intaking, shooting, and both
    * simultaneously
    */
   public void periodic() {
     // Check what flags are set
-    if (this.ejecting) {
+    if (this.unjamming) {
+      feeder.unjam();
+      processor.unjam();
+      intake.unjam();
+    } else if (this.ejecting) {
       // Check if the turret is at it's desired angle
       if (!turretAtDesiredAngleSupplier.get()) {
         // If it isn't return
@@ -198,19 +213,19 @@ public class Superstructure extends SubsystemBase {
     // Check if the turret is at it's desired angle
     if (!turretAtDesiredAngleSupplier.get()) {
       // If it isn't return false
-      return false;
+      //      return false;
     }
 
     // Check if the hood is at it's desired angle
     if (!hoodAtDesiredAngleSupplier.get()) {
       // If it isn't return false
-      return false;
+      //      return false;
     }
 
     // Check if the shooter is at it's desired RPM
     if (!shooterAtDesiredSpeedSupplier.get()) {
       // If it isn't return false
-      return false;
+      //      return false;
     }
 
     // Max acceleration and range for a good shot

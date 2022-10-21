@@ -38,10 +38,7 @@ public class AimTurretWithLLCommand extends CommandBase {
       return;
     }
 
-    Rotation2d desiredAngle =
-        new Rotation2d(turret.getAngle()).rotateBy(goalTrackerAngleSupplier.get());
-
     // Aim the turret at that angle
-    turret.aim(desiredAngle.getRadians());
+    turret.aim(turret.getAngle() + goalTrackerAngleSupplier.get().getRadians());
   }
 }

@@ -1,21 +1,13 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.auto.AutoCommands.ResetPose;
 
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
 
   private RobotContainer robotContainer;
-
-  private Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
   /** Runs once on bootup */
   @Override
@@ -35,9 +27,6 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     // Turn off the Limelight LEDs
     this.robotContainer.goalTracker.turnOffLEDs();
-
-    // Turn off the compressor
-    this.compressor.disable();
   }
 
   /** Runs periodically while disabled */
@@ -73,9 +62,6 @@ public class Robot extends TimedRobot {
     // Turn on the Limelight LEDs
     this.robotContainer.goalTracker.turnOnLEDs();
 
-    // Turn on the Compressor
-    this.compressor.enableDigital();
-
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
@@ -91,18 +77,11 @@ public class Robot extends TimedRobot {
     // Turn on the Limelight LEDs
     this.robotContainer.goalTracker.turnOnLEDs();
 
-    // Turn on the Compressor
-    this.compressor.enableDigital();
-
     // Zero the turret
     this.robotContainer.turret.zero();
 
     // Zero the hood
     this.robotContainer.hood.zero();
-
-    //    this.robotContainer.swerve.setPose(
-    //        new Pose2d(new Translation2d(7.64, 1.88), Rotation2d.fromDegrees(-90.0)),
-    //        Rotation2d.fromDegrees(-90.0));
 
     // Cancel all commands
     CommandScheduler.getInstance().cancelAll();

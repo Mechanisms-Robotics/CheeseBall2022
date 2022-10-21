@@ -23,7 +23,7 @@ public class Turret extends SubsystemBase {
   private static final double TURRET_GEAR_RATIO =
       (225.0 / 30.0) * (56.0 / 30.0) * (64.0 / 30.0) * (56.0 / 30.0); // 55.75:1 reduction
 
-  private static final double TURRET_FORWARD_LIMIT = Math.toRadians(90.0); // 90 degrees
+  private static final double TURRET_FORWARD_LIMIT = Math.toRadians(270.0); // 90 degrees
   private static final double TURRET_REVERSE_LIMIT = Math.toRadians(0.0); // -90 degrees
   private static final double TURRET_ALLOWABLE_ERROR = Math.toRadians(3.0); // 3 degrees
   private static final double TURRET_ERROR_EPSILON = Math.toRadians(3.0); // 3 degrees
@@ -54,8 +54,9 @@ public class Turret extends SubsystemBase {
 
     // Turret PID configuration
     final var turretPositionPID = new SlotConfiguration();
-    turretPositionPID.kP = 0.05;
-    turretPositionPID.kD = 1.0;
+    turretPositionPID.kP = 0.05; // 0.05
+    turretPositionPID.kD = 0.0; // 1.0
+    turretPositionPID.kF = 0.00025;
     turretPositionPID.allowableClosedloopError =
         Units.radsToFalcon(TURRET_ALLOWABLE_ERROR, TURRET_GEAR_RATIO);
     TURRET_MOTOR_CONFIGURATION.slot0 = turretPositionPID;

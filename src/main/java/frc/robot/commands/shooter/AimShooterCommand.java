@@ -24,6 +24,15 @@ public class AimShooterCommand extends CommandBase {
   private final Supplier<Boolean> ejectSupplier;
   private final Supplier<Boolean> hasBeenLocalizedSupplier;
   private final Supplier<Boolean> hasSeenTargetSupplier;
+  private final Supplier<Double> goalTrackerRangeSupplier;
+  private final Supplier<Boolean> hasTargetSupplier;
+  private final Supplier<Boolean> toggleAimingMode;
+
+  // Odometry mode flag
+  private boolean odometryMode = true;
+
+  // Last toggle value
+  private boolean lastToggleValue = false;
 
   /** Constructor of an AimShooterCommand */
   public AimShooterCommand(
@@ -33,7 +42,10 @@ public class AimShooterCommand extends CommandBase {
       Supplier<Rotation2d> headingSupplier,
       Supplier<Boolean> ejectSupplier,
       Supplier<Boolean> hasBeenLocalizedSupplier,
-      Supplier<Boolean> hasSeenTargetSupplier) {
+      Supplier<Boolean> hasSeenTargetSupplier,
+      Supplier<Double> goalTrackerRangeSupplier,
+      Supplier<Boolean> hasTargetSupplier,
+      Supplier<Boolean> toggleAimingMode) {
     // Set shooter
     this.shooter = shooter;
 
@@ -44,6 +56,9 @@ public class AimShooterCommand extends CommandBase {
     this.ejectSupplier = ejectSupplier;
     this.hasBeenLocalizedSupplier = hasBeenLocalizedSupplier;
     this.hasSeenTargetSupplier = hasSeenTargetSupplier;
+    this.goalTrackerRangeSupplier = goalTrackerRangeSupplier;
+    this.hasTargetSupplier = hasTargetSupplier;
+    this.toggleAimingMode = toggleAimingMode;
 
     // Add the shooter as a requirement
     addRequirements(shooter);
@@ -52,53 +67,70 @@ public class AimShooterCommand extends CommandBase {
   /** Runs periodically while the command is running */
   @Override
   public void execute() {
-    // If the robot has not been localized and not seen a target return
-    if (!hasBeenLocalizedSupplier.get() && !hasSeenTargetSupplier.get()) {
-      return;
+    if (toggleAimingMode.get() && !lastToggleValue) {
+      this.odometryMode = !this.odometryMode;
+      lastToggleValue = true;
+    } else if (!toggleAimingMode.get() && lastToggleValue) {
+      lastToggleValue = false;
     }
 
-    // Get the chassis speeds of the swerve
-    ChassisSpeeds speeds = chassisSpeedsSupplier.get();
+    if (this.odometryMode) {
+      // If the robot has not been localized and not seen a target return
+      if (!hasBeenLocalizedSupplier.get() && !hasSeenTargetSupplier.get()) {
+        return;
+      }
 
-    // Convert the chassis speeds to a robot relative velocity vector
-    Translation2d velocityVector =
-        new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+      // Get the chassis speeds of the swerve
+      ChassisSpeeds speeds = chassisSpeedsSupplier.get();
 
-    // Rotate the velocity vector so it is field relative
-    velocityVector.rotateBy(headingSupplier.get().unaryMinus());
+      // Convert the chassis speeds to a robot relative velocity vector
+      Translation2d velocityVector =
+          new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
 
-    // Get the estimated pose of the robot from the SwerveDrivePoseEstimator
-    Pose2d estimatedPose = estimatedPoseSupplier.get();
+      // Rotate the velocity vector so it is field relative
+      velocityVector.rotateBy(headingSupplier.get().unaryMinus());
 
-    // Initialize target
-    Pose2d target;
+      // Get the estimated pose of the robot from the SwerveDrivePoseEstimator
+      Pose2d estimatedPose = estimatedPoseSupplier.get();
 
-    // Check if the eject value is true
-    if (ejectSupplier.get()) {
-      // If it is set target to the eject pose
-      target = Constants.EJECT_POSE;
+      // Initialize target
+      Pose2d target;
+
+      // Check if the eject value is true
+      if (ejectSupplier.get()) {
+        // If it is set target to the eject pose
+        target = Constants.EJECT_POSE;
+      } else {
+        // If it isn't set target to the goal pose
+        target = Constants.GOAL_POSE;
+      }
+
+      // Calculate the current range to the target
+      double range = new Transform2d(estimatedPose, target).getTranslation().getNorm();
+
+      // Calculate the air time of the ball from this range and scale the velocity vector
+      Translation2d scaledVelocityVector =
+          velocityVector.times(Constants.AIR_TIME_SLOPE * range + Constants.AIR_TIME_INTERCEPT);
+
+      // Calculate the pose of the robot by the time the shot will land
+      Pose2d futurePose =
+          estimatedPoseSupplier
+              .get()
+              .transformBy(new Transform2d(scaledVelocityVector, new Rotation2d()));
+
+      // Calculate what the range to the target is by the time the shot will land
+      double futureRange = target.minus(futurePose).getTranslation().getNorm();
+
+      // Vary the shooter RPM based on the calculated future range
+      shooter.shoot(futureRange);
     } else {
-      // If it isn't set target to the goal pose
-      target = Constants.GOAL_POSE;
+      // If the robot does not see a target return
+      if (!hasTargetSupplier.get()) {
+        return;
+      }
+
+      // Vary the shooter RPM based on the calculated range
+      shooter.shoot(goalTrackerRangeSupplier.get());
     }
-
-    // Calculate the current range to the target
-    double range = new Transform2d(estimatedPose, target).getTranslation().getNorm();
-
-    // Calculate the air time of the ball from this range and scale the velocity vector
-    Translation2d scaledVelocityVector =
-        velocityVector.times(Constants.AIR_TIME_SLOPE * range + Constants.AIR_TIME_INTERCEPT);
-
-    // Calculate the pose of the robot by the time the shot will land
-    Pose2d futurePose =
-        estimatedPoseSupplier
-            .get()
-            .transformBy(new Transform2d(scaledVelocityVector, new Rotation2d()));
-
-    // Calculate what the range to the target is by the time the shot will land
-    double futureRange = target.minus(futurePose).getTranslation().getNorm();
-
-    // Vary the shooter RPM based on the calculated future range
-    shooter.shoot(futureRange * 1.1);
   }
 }

@@ -25,7 +25,7 @@ public class Shooter extends SubsystemBase {
   private static final double SHOOTER_RPM_LOBF_SLOPE = 123.11;
   private static final double SHOOTER_RPM_LOBF_INTERCEPT = 1080.82;
   private static final double SHOOTER_ERROR_EPSILON = 10; // RPM
-  private static final double TUNING_SCALAR = 1.2;
+  private static final double TUNING_SCALAR = 1.15;
 
   // Shooter motors
   private final WPI_TalonFX shooterMotor = new WPI_TalonFX(60);
@@ -41,7 +41,7 @@ public class Shooter extends SubsystemBase {
     final var shooterCurrentLimit = new SupplyCurrentLimitConfiguration();
     shooterCurrentLimit.currentLimit = 40; // Amps
     shooterCurrentLimit.triggerThresholdCurrent = 45; // Amps
-    shooterCurrentLimit.triggerThresholdTime = 1.0; // sec
+    shooterCurrentLimit.triggerThresholdTime = 0.5; // sec
     shooterCurrentLimit.enable = true;
     SHOOTER_MOTOR_CONFIGURATION.supplyCurrLimit = shooterCurrentLimit;
 

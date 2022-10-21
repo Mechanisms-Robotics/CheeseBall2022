@@ -20,7 +20,8 @@ import org.photonvision.PhotonUtils;
  * SwerveDrivePoseEstimator with the estimated vision pose
  */
 public class PoseEstimateCommand extends CommandBase {
-  private static final double TARGET_HEIGHT = 2.64; // meters
+  // TODO: Change me back to 2.64
+  private static final double TARGET_HEIGHT = 2.68; // meters
   private static final double CAMERA_HEIGHT = 0.99; // meters
   private static final double CAMERA_PITCH = Math.toRadians(20.0); // radians
 
@@ -69,12 +70,13 @@ public class PoseEstimateCommand extends CommandBase {
 
     // Check if it has a valid target
     if (currentTarget.hasTarget) {
-      // If it does estimate the robot pose based on the angle and range to the target
-      Pose2d estimatedPose = estimateRobotPose(currentTarget.angle, currentTarget.range);
+      // If it does estimate the robot pose
+      Pose2d estimatedPose = estimateRobotPose();
 
       // Add the estimated pose to the pose estimator
       poseEstimator.addVisionMeasurement(estimatedPose, Timer.getFPGATimestamp());
 
+      // Output the estimated vision pose to Field2d
       visionPoseField2d.setRobotPose(estimatedPose);
     }
 
@@ -82,24 +84,33 @@ public class PoseEstimateCommand extends CommandBase {
     SmartDashboard.putData("Vision Field", visionPoseField2d);
   }
 
-  Transform2d cameraToTurret = new Transform2d(new Translation2d(0.18415, 0.0), new Rotation2d());
-  Transform2d turretToRobot = new Transform2d(new Translation2d(0.2032, 0.0), new Rotation2d());
+  Transform2d cameraToTurret = new Transform2d(new Translation2d(-0.18103, 0.0), new Rotation2d());
+  Transform2d turretToRobot = new Transform2d(new Translation2d(-0.193675, 0.0), new Rotation2d());
 
-  Transform2d cameraToRobot = turretToRobot.plus(turretToRobot);
+  Transform2d cameraToRobot = cameraToTurret.plus(turretToRobot);
 
   /** Estimates the robot pose based on the angle and range from the Limelight to the target */
-  private Pose2d estimateRobotPose(Rotation2d angle, double range) {
-    return PhotonUtils.estimateFieldToRobot(
-        CAMERA_HEIGHT,
-        TARGET_HEIGHT,
-        CAMERA_PITCH,
-        goalTracker.getCurrentTarget().pitch,
-        goalTracker.getCurrentTarget().angle,
-        gyroAngleSupplier
-            .get()
-            .rotateBy(
-                Rotation2d.fromDegrees(-90.0).rotateBy(new Rotation2d(turretAngleSupplier.get()))),
-        GOAL_POSE,
-        turretToRobot);
+  private Pose2d estimateRobotPose() {
+    Pose2d photonEstimate =
+        PhotonUtils.estimateFieldToRobot(
+            CAMERA_HEIGHT,
+            TARGET_HEIGHT,
+            CAMERA_PITCH,
+            goalTracker.getCurrentTarget().pitch,
+            goalTracker.getCurrentTarget().angle,
+            gyroAngleSupplier
+                .get()
+                .rotateBy(
+                    Rotation2d.fromDegrees(-90.0)
+                        .rotateBy(new Rotation2d(turretAngleSupplier.get()))),
+            GOAL_POSE,
+            cameraToRobot);
+
+    Translation2d goalVec = GOAL_POSE.getTranslation().minus(photonEstimate.getTranslation());
+    Pose2d scaledPose =
+        new Pose2d(
+            GOAL_POSE.getTranslation().minus(goalVec.times(1.21)), photonEstimate.getRotation());
+
+    return scaledPose;
   }
 }

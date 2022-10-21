@@ -17,7 +17,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** This class contains all the code that controls the intake functionality */
 public class Intake extends SubsystemBase {
   // Intake speeds
-  private static final double INTAKE_SPEED = 0.75; // percent
+  private static final double INTAKE_SPEED = 1.0; // percent
+  private static final double UNJAM_SPEED = -0.5; // percent
 
   // Intake actuator positions
   private static final DoubleSolenoid.Value INTAKE_DEPLOYED = Value.kReverse;
@@ -28,7 +29,7 @@ public class Intake extends SubsystemBase {
 
   // Intake actuator
   private final DoubleSolenoid intakeActuator =
-      new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 1, 2);
+      new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
 
   // Intake motor configuration
   private static final TalonFXConfiguration INTAKE_MOTOR_CONFIGURATION = new TalonFXConfiguration();
@@ -39,15 +40,17 @@ public class Intake extends SubsystemBase {
     final var intakeCurrentLimit = new SupplyCurrentLimitConfiguration();
 
     // Configure the settings of the SupplyCurrentLimitConfiguration
-    intakeCurrentLimit.currentLimit = 15; // amps
-    intakeCurrentLimit.triggerThresholdCurrent = 18; // amps
-    intakeCurrentLimit.triggerThresholdTime = 0.25; // sec
+    intakeCurrentLimit.currentLimit = 40; // amps
+    intakeCurrentLimit.triggerThresholdCurrent = 45; // amps
+    intakeCurrentLimit.triggerThresholdTime = 0.5; // sec
     intakeCurrentLimit.enable = true;
 
     // Set the INTAKE_MOTOR_CONFIGURATION current limit and disable reverse and forward limits
     INTAKE_MOTOR_CONFIGURATION.supplyCurrLimit = intakeCurrentLimit;
     INTAKE_MOTOR_CONFIGURATION.reverseSoftLimitEnable = false;
     INTAKE_MOTOR_CONFIGURATION.forwardSoftLimitEnable = false;
+
+    INTAKE_MOTOR_CONFIGURATION.voltageCompSaturation = 10.5; // volts
   }
 
   // Retracted flag
@@ -59,6 +62,7 @@ public class Intake extends SubsystemBase {
     intakeMotor.configAllSettings(INTAKE_MOTOR_CONFIGURATION, startupCanTimeout);
     intakeMotor.setInverted(TalonFXInvertType.Clockwise);
     intakeMotor.setNeutralMode(NeutralMode.Coast);
+    intakeMotor.enableVoltageCompensation(true);
 
     // CAN bus utilization optimization
     intakeMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 255);
@@ -87,6 +91,11 @@ public class Intake extends SubsystemBase {
   public void intake() {
     // Set the intake motor to run at INTAKE_SPEED
     intakeMotor.set(ControlMode.PercentOutput, INTAKE_SPEED);
+  }
+
+  /** Unjams the intake */
+  public void unjam() {
+    intakeMotor.set(ControlMode.PercentOutput, UNJAM_SPEED);
   }
 
   /** Stops the intake */

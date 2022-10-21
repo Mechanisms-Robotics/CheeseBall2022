@@ -184,8 +184,8 @@ public class Swerve extends SubsystemBase {
     // Calculate current acceleration
     acceleration =
         new Translation2d(
-            (getSpeeds().vxMetersPerSecond - lastSpeeds.vxMetersPerSecond) * Constants.loopTime,
-            (getSpeeds().vyMetersPerSecond - lastSpeeds.vyMetersPerSecond) * Constants.loopTime);
+            (getSpeeds().vxMetersPerSecond - lastSpeeds.vxMetersPerSecond) / Constants.loopTime,
+            (getSpeeds().vyMetersPerSecond - lastSpeeds.vyMetersPerSecond) / Constants.loopTime);
 
     SmartDashboard.putNumber("Target vX", desiredSpeeds.vxMetersPerSecond);
     SmartDashboard.putNumber("Target vY", desiredSpeeds.vyMetersPerSecond);
@@ -193,6 +193,8 @@ public class Swerve extends SubsystemBase {
     SmartDashboard.putNumber("Robot X", getPose().getX());
     SmartDashboard.putNumber("Robot Y", getPose().getY());
     SmartDashboard.putNumber("Robot Heading", getPose().getRotation().getDegrees());
+    SmartDashboard.putBoolean("Localized", this.localized);
+    SmartDashboard.putNumber("Acceleration", acceleration.getNorm());
   }
 
   public void drive(
