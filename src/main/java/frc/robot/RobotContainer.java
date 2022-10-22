@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
+import frc.robot.commands.auto.TwoBallAutoCommand;
 import frc.robot.commands.colorSensor.ToggleOverrideColorSensorCommand;
 import frc.robot.commands.hood.AimHoodCommand;
 import frc.robot.commands.hood.AimHoodWithLLCommand;
@@ -93,10 +94,9 @@ public class RobotContainer {
 
   // Autos Enumerator
   private enum Autos {
+    TWO_BALL,
     FIVE_BALL,
-    FIVE_BALL_MOVING,
     SIX_BALL,
-    SIX_BALL_MOVING
   }
 
   // Auto Chooser
@@ -114,10 +114,9 @@ public class RobotContainer {
     configureDefaultCommands();
 
     // Add autonomous commands to auto chooser
+    autoChooser.addOption(Autos.TWO_BALL.name(), Autos.TWO_BALL);
     autoChooser.addOption(Autos.FIVE_BALL.name(), Autos.FIVE_BALL);
-    autoChooser.addOption(Autos.FIVE_BALL_MOVING.name(), Autos.FIVE_BALL_MOVING);
     autoChooser.addOption(Autos.SIX_BALL.name(), Autos.SIX_BALL);
-    autoChooser.addOption(Autos.SIX_BALL_MOVING.name(), Autos.SIX_BALL_MOVING);
 
     // Set default auto chooser option
     autoChooser.setDefaultOption(Autos.FIVE_BALL.name(), Autos.FIVE_BALL);
@@ -249,14 +248,12 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // Check which auto is selected and return the corresponding command
     switch (autoChooser.getSelected()) {
+      case TWO_BALL:
+        return new TwoBallAutoCommand(swerve, superstructure);
       case FIVE_BALL:
         return new FiveBallAutoCommand(swerve, superstructure);
-      case FIVE_BALL_MOVING:
-        return new FiveBallMovingAutoCommand(swerve, superstructure);
       case SIX_BALL:
         return new SixBallAutoCommand(swerve, superstructure);
-      case SIX_BALL_MOVING:
-        return new SixBallMovingAutoCommand(swerve, superstructure);
       default:
         return new FiveBallAutoCommand(swerve, superstructure);
     }

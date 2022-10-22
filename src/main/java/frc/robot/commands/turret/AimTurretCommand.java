@@ -131,6 +131,11 @@ public class AimTurretCommand extends CommandBase {
       // Rotate that by the angle between the robot front and turret front
       double turretAngle = robotAngle.getRadians() - Constants.ROBOT_TO_TURRET.getRadians();
 
+      // Wrap turret angle
+      if (turretAngle < 0.0 && (360.0 + Math.toDegrees(turretAngle)) <= 270.0) {
+        turretAngle = Math.toRadians(360.0 + Math.toDegrees(turretAngle));
+      }
+
       // Aim the turret at that angle
       turret.aim(turretAngle);
     } else {

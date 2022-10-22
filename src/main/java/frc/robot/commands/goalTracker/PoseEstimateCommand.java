@@ -20,8 +20,7 @@ import org.photonvision.PhotonUtils;
  * SwerveDrivePoseEstimator with the estimated vision pose
  */
 public class PoseEstimateCommand extends CommandBase {
-  // TODO: Change me back to 2.64
-  private static final double TARGET_HEIGHT = 2.68; // meters
+  private static final double TARGET_HEIGHT = 2.64; // meters
   private static final double CAMERA_HEIGHT = 0.99; // meters
   private static final double CAMERA_PITCH = Math.toRadians(20.0); // radians
 
@@ -82,8 +81,10 @@ public class PoseEstimateCommand extends CommandBase {
         return;
       }
 
-      if (poseEstimator.getEstimatedPosition().getTranslation().getX() == 0.0
-          && poseEstimator.getEstimatedPosition().getTranslation().getY() == 0.0) {
+      lastPose = estimatedPose;
+
+      if (poseEstimator.getEstimatedPosition().getTranslation().getX() <= 0.1
+          && poseEstimator.getEstimatedPosition().getTranslation().getY() <= 0.1) {
         // If the robot has not been localized reset the pose at the first vision estimate
         poseEstimator.resetPosition(estimatedPose, gyroAngleSupplier.get());
       } else {

@@ -15,8 +15,7 @@ public class GoalTracker extends SubsystemBase {
   private final PhotonCamera limelight;
 
   // Limelight constants
-  // TODO: Change me back to 2.64
-  private static final double TARGET_HEIGHT = 2.68; // meters
+  private static final double TARGET_HEIGHT = 2.64; // meters
   private static final double CAMERA_HEIGHT = 0.99; // meters
   private static final double CAMERA_PITCH = Math.toRadians(20.0); // radians
 
