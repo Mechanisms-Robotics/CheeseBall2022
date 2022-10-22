@@ -91,8 +91,6 @@ public class RobotContainer {
   private final Button toggleOverrideColorSensor =
       new Button(() -> driverController.getPOV() == Direction.Up);
 
-  private final Button toggleAimingMode = new Button(driverController::getRightBumperButton);
-
   // Autos Enumerator
   private enum Autos {
     FIVE_BALL,
@@ -206,7 +204,7 @@ public class RobotContainer {
             goalTracker::hasSeenTarget,
             () -> goalTracker.getCurrentTarget().angle,
             goalTracker::hasTarget,
-            toggleAimingMode::get));
+            driverController::getLeftBumperButton));
 
     // Set the default shooter command to an AimShooterCommand
     shooter.setDefaultCommand(
@@ -220,9 +218,9 @@ public class RobotContainer {
             goalTracker::hasSeenTarget,
             () -> goalTracker.getCurrentTarget().range,
             goalTracker::hasTarget,
-            toggleAimingMode::get));
+            driverController::getLeftBumperButton));
 
-    // t Set the default hood command to an AimHoodCommand
+    // Set the default hood command to an AimHoodCommand
     hood.setDefaultCommand(
         new AimHoodCommand(
             hood,
@@ -234,7 +232,7 @@ public class RobotContainer {
             goalTracker::hasSeenTarget,
             () -> goalTracker.getCurrentTarget().range,
             goalTracker::hasTarget,
-            toggleAimingMode::get));
+            driverController::getLeftBumperButton));
 
     //    shooter.setDefaultCommand(
     //        new AimShooterWithLLCommand(

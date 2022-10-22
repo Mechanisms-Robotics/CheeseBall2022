@@ -41,6 +41,9 @@ public class PoseEstimateCommand extends CommandBase {
       new Pose2d(new Translation2d(8.23, 4.12), new Rotation2d());
 
   private static final Field2d visionPoseField2d = new Field2d();
+  private static Pose2d lastPose = new Pose2d();
+
+  private static final double MAX_RANGE = 8; // meters
 
   /** Constructor of a PoseEstimateCommand */
   public PoseEstimateCommand(
@@ -73,8 +76,20 @@ public class PoseEstimateCommand extends CommandBase {
       // If it does estimate the robot pose
       Pose2d estimatedPose = estimateRobotPose();
 
-      // Add the estimated pose to the pose estimator
-      poseEstimator.addVisionMeasurement(estimatedPose, Timer.getFPGATimestamp());
+      // If the estimated pose is more than a certain distance away from our last estimated pose
+      // throw it away
+      if (estimatedPose.getTranslation().getDistance(lastPose.getTranslation()) > MAX_RANGE) {
+        return;
+      }
+
+      if (poseEstimator.getEstimatedPosition().getTranslation().getX() == 0.0
+          && poseEstimator.getEstimatedPosition().getTranslation().getY() == 0.0) {
+        // If the robot has not been localized reset the pose at the first vision estimate
+        poseEstimator.resetPosition(estimatedPose, gyroAngleSupplier.get());
+      } else {
+        // Add the estimated pose to the pose estimator
+        poseEstimator.addVisionMeasurement(estimatedPose, Timer.getFPGATimestamp());
+      }
 
       // Output the estimated vision pose to Field2d
       visionPoseField2d.setRobotPose(estimatedPose);

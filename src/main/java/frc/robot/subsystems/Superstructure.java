@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 
@@ -35,6 +36,9 @@ public class Superstructure extends SubsystemBase {
   private boolean ejecting = false;
   private boolean unjamming = false;
 
+  private boolean intakeReverse = false;
+  private Timer intakeReverseTimer = new Timer();
+
   /** Constructor for the Superstructure class */
   public Superstructure(
       Intake intake,
@@ -64,10 +68,10 @@ public class Superstructure extends SubsystemBase {
     if (intake.isRetracted()) {
       // If it is deploy it
       intake.deploy();
-    }
 
-    // Run the intake
-    intake.intake();
+      intakeReverse = true;
+      intakeReverseTimer.start();
+    }
 
     // Set the intaking flag to true
     this.intaking = true;
@@ -136,11 +140,27 @@ public class Superstructure extends SubsystemBase {
 
   /** Sets the unjamming flag to true */
   public void unjam() {
+    // Check if the intake is retracted
+    if (intake.isRetracted()) {
+      // If it is deploy it
+      intake.deploy();
+    }
+
     this.unjamming = true;
   }
 
   /** Sets the unjamming flag to false */
   public void stopUnjamming() {
+    intake.stop();
+
+    if (!this.intaking) {
+      // Check if the intake is deployed
+      if (intake.isDeployed()) {
+        // If it is retract it
+        intake.retract();
+      }
+    }
+
     this.unjamming = false;
   }
 
@@ -149,6 +169,17 @@ public class Superstructure extends SubsystemBase {
    * simultaneously
    */
   public void periodic() {
+    if (this.intaking && !this.unjamming) {
+      if (this.intakeReverse && !intakeReverseTimer.hasElapsed(0.5)) {
+        intake.unjam();
+      } else {
+        intake.intake();
+        intakeReverse = false;
+        intakeReverseTimer.stop();
+        intakeReverseTimer.reset();
+      }
+    }
+
     // Check what flags are set
     if (this.unjamming) {
       feeder.unjam();
@@ -229,7 +260,8 @@ public class Superstructure extends SubsystemBase {
     }
 
     // Max acceleration and range for a good shot
-    double maxAccel = 0.1; // m/s^2
+    double maxAccel = 0.75; // m/s^2
+    double minRange = 2.0; // m
     double maxRange = 5.0; // m
 
     // Get the acceleration of the robot
@@ -245,8 +277,8 @@ public class Superstructure extends SubsystemBase {
     Pose2d estimatedPose = estimatedPoseSupplier.get();
     double range = new Transform2d(estimatedPose, GOAL_POSE).getTranslation().getNorm();
 
-    // Check if the range exceeds the maximum range
-    if (range > maxRange) {
+    // Check if the range exceeds the minimum or maximum range
+    if (range < minRange || range > maxRange) {
       // If it does return false
       return false;
     }

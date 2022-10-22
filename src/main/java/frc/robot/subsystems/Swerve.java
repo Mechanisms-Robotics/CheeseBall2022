@@ -184,8 +184,8 @@ public class Swerve extends SubsystemBase {
     // Calculate current acceleration
     acceleration =
         new Translation2d(
-            (getSpeeds().vxMetersPerSecond - lastSpeeds.vxMetersPerSecond) / Constants.loopTime,
-            (getSpeeds().vyMetersPerSecond - lastSpeeds.vyMetersPerSecond) / Constants.loopTime);
+            (getSpeeds().vxMetersPerSecond - lastSpeeds.vxMetersPerSecond),
+            (getSpeeds().vyMetersPerSecond - lastSpeeds.vyMetersPerSecond));
 
     SmartDashboard.putNumber("Target vX", desiredSpeeds.vxMetersPerSecond);
     SmartDashboard.putNumber("Target vY", desiredSpeeds.vyMetersPerSecond);

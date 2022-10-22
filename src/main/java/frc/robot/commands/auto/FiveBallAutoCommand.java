@@ -20,7 +20,7 @@ import frc.robot.subsystems.Swerve;
  */
 public class FiveBallAutoCommand extends SequentialCommandGroup {
   // Max velocity and acceleration
-  private static final double MAX_VEL = 4.0; // m/s
+  private static final double MAX_VEL = 2.5; // m/s
   private static final double MAX_ACCEL = 4.0; // m/s
 
   // Paths
@@ -39,7 +39,7 @@ public class FiveBallAutoCommand extends SequentialCommandGroup {
         // Reset the pose and start intaking
         new ParallelCommandGroup(
             new ResetPose(tarmacToThirdBall, swerve), new IntakeCommand(superstructure)),
-        // Follow the TarmacToThirdBall path for 2.64 seconds
+        // Follow the TarmacToThirdBall path for 3.07 seconds
         new FollowPathCommand(tarmacToThirdBall, swerve),
         // Start shooting
         new ShootCommand(superstructure),
@@ -47,11 +47,11 @@ public class FiveBallAutoCommand extends SequentialCommandGroup {
         new WaitCommand(2.0),
         // Stop shooting
         new StopShootingCommand(superstructure),
-        // Follow the ThirdBallToHP path for 1.99 seconds
+        // Follow the ThirdBallToHP path for 2.17 seconds
         new FollowPathCommand(thirdBallToHP, swerve),
         // Wait 1 second
         new WaitCommand(1.0),
-        // Follow the HPToShot path for 1.99 seconds
+        // Follow the HPToShot path for 2.17 seconds
         new FollowPathCommand(hpToShot, swerve),
         // Start shooting
         new ShootCommand(superstructure),
@@ -59,7 +59,7 @@ public class FiveBallAutoCommand extends SequentialCommandGroup {
         new WaitCommand(2.0),
         // Stop shooting
         new StopShootingCommand(superstructure),
-        // Follow the ShotToPrime path for 1.78 seconds
+        // Follow the ShotToPrime path for 1.93 seconds
         new FollowPathCommand(shotToPrime, swerve));
   }
 }

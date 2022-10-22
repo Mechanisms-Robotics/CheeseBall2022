@@ -36,6 +36,7 @@
       "/LiveWindow/Processor": "Subsystem",
       "/LiveWindow/Shooter": "Subsystem",
       "/LiveWindow/Swerve/Swerve Drive": "Subsystem",
+      "/LiveWindow/Turret": "Subsystem",
       "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
       "/LiveWindow/Ungrouped/DigitalInput[1]": "Digital Input",
       "/LiveWindow/Ungrouped/DigitalInput[2]": "Digital Input",

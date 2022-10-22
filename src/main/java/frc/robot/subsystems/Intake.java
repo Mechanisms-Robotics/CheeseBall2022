@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** This class contains all the code that controls the intake functionality */
 public class Intake extends SubsystemBase {
   // Intake speeds
-  private static final double INTAKE_SPEED = 1.0; // percent
-  private static final double UNJAM_SPEED = -0.5; // percent
+  private static final double INTAKE_SPEED = 0.5; // percent
+  private static final double UNJAM_SPEED = -0.25; // percent
 
   // Intake actuator positions
   private static final DoubleSolenoid.Value INTAKE_DEPLOYED = Value.kReverse;

@@ -16,9 +16,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** This class contains all the code that controls the processor functionality */
 public class Processor extends SubsystemBase {
   // Processor speeds
-  private static final double PROCESSOR_INTAKE_SPEED = -0.4;
+  private static final double PROCESSOR_INTAKE_SPEED = -0.75;
   private static final double PROCESSOR_SHOOT_SPEED = -0.75;
-  private static final double PROCESSOR_UNJAM_SPEED = 0.5;
+  private static final double PROCESSOR_UNJAM_SPEED = 0.25;
 
   // Processor motor
   private final WPI_TalonFX processorMotor = new WPI_TalonFX(30);

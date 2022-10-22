@@ -23,10 +23,10 @@ public class Turret extends SubsystemBase {
   private static final double TURRET_GEAR_RATIO =
       (225.0 / 30.0) * (56.0 / 30.0) * (64.0 / 30.0) * (56.0 / 30.0); // 55.75:1 reduction
 
-  private static final double TURRET_FORWARD_LIMIT = Math.toRadians(270.0); // 90 degrees
-  private static final double TURRET_REVERSE_LIMIT = Math.toRadians(0.0); // -90 degrees
-  private static final double TURRET_ALLOWABLE_ERROR = Math.toRadians(3.0); // 3 degrees
-  private static final double TURRET_ERROR_EPSILON = Math.toRadians(3.0); // 3 degrees
+  private static final double TURRET_FORWARD_LIMIT = Math.toRadians(270.0); // 270 degrees
+  private static final double TURRET_REVERSE_LIMIT = Math.toRadians(0.0); // 0 degrees
+  private static final double TURRET_ALLOWABLE_ERROR = Math.toRadians(1.0); // 1 degrees
+  private static final double TURRET_ERROR_EPSILON = Math.toRadians(1.0); // 1 degrees
 
   // Turret motor
   private final WPI_TalonFX turretMotor = new WPI_TalonFX(50);

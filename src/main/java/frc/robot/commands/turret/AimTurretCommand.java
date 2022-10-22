@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Turret;
@@ -72,8 +73,10 @@ public class AimTurretCommand extends CommandBase {
       lastToggleValue = false;
     }
 
+    SmartDashboard.putBoolean("Odometry Aiming Mode", this.odometryMode);
+
     if (this.odometryMode) {
-      // If the robot has not been localized and not seen a target return
+      // If the robot has not been localized and has not seen a target return
       if (!hasBeenLocalizedSupplier.get() && !hasSeenTargetSupplier.get()) {
         return;
       }
@@ -126,10 +129,10 @@ public class AimTurretCommand extends CommandBase {
       Rotation2d robotAngle = headingSupplier.get().rotateBy(targetAngle.unaryMinus()).unaryMinus();
 
       // Rotate that by the angle between the robot front and turret front
-      Rotation2d turretAngle = robotAngle.rotateBy(Constants.ROBOT_TO_TURRET.unaryMinus());
+      double turretAngle = robotAngle.getRadians() - Constants.ROBOT_TO_TURRET.getRadians();
 
       // Aim the turret at that angle
-      turret.aim(turretAngle.getRadians());
+      turret.aim(turretAngle);
     } else {
       // If the robot does not see a target return
       if (!hasTargetSupplier.get()) {
