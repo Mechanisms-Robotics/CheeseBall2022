@@ -43,6 +43,8 @@ public class PoseEstimateCommand extends CommandBase {
 
   private static final Field2d visionPoseField2d = new Field2d();
 
+  private static boolean doesEstimatorHaveVision = false;
+
   private Pose2d previousPose;
 
   /** Constructor of a PoseEstimateCommand */
@@ -85,6 +87,7 @@ public class PoseEstimateCommand extends CommandBase {
 
       // Add the estimated pose to the pose estimator
       poseEstimator.addVisionMeasurement(estimatedPose, Timer.getFPGATimestamp());
+      doesEstimatorHaveVision = true;
 
       // Output the estimated vision pose to Field2d
       visionPoseField2d.setRobotPose(estimatedPose);
@@ -130,5 +133,9 @@ public class PoseEstimateCommand extends CommandBase {
       return false;
 
     return currentPose.relativeTo(this.previousPose).getTranslation().getNorm() >= STRAY_POSE_ALLOWABLE_RADIUS;
+  }
+
+  public static boolean doesEstimatorHaveVision() {
+    return doesEstimatorHaveVision;
   }
 }

@@ -46,7 +46,7 @@ import frc.robot.util.ControllerWrapper.Direction;
 /** This class contains all the subsystems, command bindings, and button bindings */
 public class RobotContainer {
   // Subsystems
-  public final Swerve swerve = new Swerve();
+  public final Swerve swerve = new Swerve(PoseEstimateCommand::doesEstimatorHaveVision);
   private final Intake intake = new Intake();
   public final Processor processor = new Processor();
   public final Feeder feeder =

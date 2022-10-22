@@ -23,6 +23,8 @@ import frc.robot.Constants;
 import frc.robot.util.HeadingController;
 import frc.robot.util.TrajectoryController;
 
+import java.util.function.Supplier;
+
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
 
@@ -142,8 +144,10 @@ public class Swerve extends SubsystemBase {
   // Localized flag
   private boolean localized = false;
 
+  private final Supplier<Boolean> doesEstimatorHaveVision;
+
   /** Constructs the Swerve subsystem. */
-  public Swerve() {
+  public Swerve(Supplier<Boolean> doesEstimatorHaveVision) {
     poseEstimator =
         new SwerveDrivePoseEstimator(
             getHeading(),
@@ -152,6 +156,8 @@ public class Swerve extends SubsystemBase {
             VecBuilder.fill(0.05, 0.05, Math.toRadians(5.0)),
             VecBuilder.fill(Math.toRadians(0.01)),
             VecBuilder.fill(0.5, 0.5, Math.toRadians(30.0)));
+
+    this.doesEstimatorHaveVision = doesEstimatorHaveVision;
 
     gyro.setFusedHeading(0.0);
     this.register();
@@ -163,12 +169,15 @@ public class Swerve extends SubsystemBase {
 
   @Override
   public void periodic() {
-    poseEstimator.update(
-        getHeading(),
-        flModule.getState(),
-        frModule.getState(),
-        blModule.getState(),
-        brModule.getState());
+    // Only start sending encoder information when the robot has a target
+    if (doesEstimatorHaveVision.get()) {
+      poseEstimator.update(
+              getHeading(),
+              flModule.getState(),
+              frModule.getState(),
+              blModule.getState(),
+              brModule.getState());
+    }
 
     // Update Field2d with the latest pose estimate
     field2d.setRobotPose(poseEstimator.getEstimatedPosition());
