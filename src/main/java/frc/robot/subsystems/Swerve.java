@@ -1,9 +1,12 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper.GearRatio;
+import com.swervedrivespecialties.swervelib.SimpleFeedforwardConstants;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -22,6 +25,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.HeadingController;
 import frc.robot.util.TrajectoryController;
+
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /** The base swerve drive class, controls all swerve modules in coordination. */
 public class Swerve extends SubsystemBase {
@@ -70,6 +77,21 @@ public class Swerve extends SubsystemBase {
 
   private final ShuffleboardTab tab = Shuffleboard.getTab("Swerve");
 
+  // Currying madness
+  private static final Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> DRIVE_CONFIG = motor -> config -> feedforwardConstants -> {
+    motor.config_kP(0, 0.001);
+    motor.selectProfileSlot(0, 0);
+    feedforwardConstants.ks = 0.319185544;
+    feedforwardConstants.kv = 2.2544;
+    feedforwardConstants.ka = 0.063528;
+  };
+
+  private static final Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> STEER_CONFIG = motor -> config -> feedforwardConstants -> {
+    motor.config_kP(0, 0.2);
+    motor.config_kI(0, 0.0);
+    motor.config_kD(0, 0.1);
+  };
+
   private final SwerveModule flModule =
       Mk4iSwerveModuleHelper.createFalcon500(
           tab.getLayout("Front Left Module", BuiltInLayouts.kList)
@@ -77,7 +99,9 @@ public class Swerve extends SubsystemBase {
               .withPosition(0, 0),
           GearRatio.L3,
           flWheelMotorID,
+          DRIVE_CONFIG,
           flSteerMotorID,
+          STEER_CONFIG,
           flSteerEncoderID,
           Math.toRadians(flAngleOffset));
 
@@ -88,7 +112,9 @@ public class Swerve extends SubsystemBase {
               .withPosition(2, 0),
           GearRatio.L3,
           frWheelMotorID,
+          DRIVE_CONFIG,
           frSteerMotorID,
+          STEER_CONFIG,
           frSteerEncoderID,
           Math.toRadians(frAngleOffset));
 
@@ -97,7 +123,9 @@ public class Swerve extends SubsystemBase {
           tab.getLayout("Back Left Module", BuiltInLayouts.kList).withSize(2, 2).withPosition(4, 0),
           GearRatio.L3,
           blWheelMotorID,
+          DRIVE_CONFIG,
           blSteerMotorID,
+          STEER_CONFIG,
           blSteerEncoderID,
           Math.toRadians(blAngleOffset));
 
@@ -108,7 +136,9 @@ public class Swerve extends SubsystemBase {
               .withPosition(6, 0),
           GearRatio.L3,
           brWheelMotorID,
+          DRIVE_CONFIG,
           brSteerMotorID,
+          STEER_CONFIG,
           brSteerEncoderID,
           Math.toRadians(brAngleOffset));
 

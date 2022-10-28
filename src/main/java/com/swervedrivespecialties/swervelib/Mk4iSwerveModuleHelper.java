@@ -1,16 +1,23 @@
 package com.swervedrivespecialties.swervelib;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.swervedrivespecialties.swervelib.ctre.*;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class Mk4iSwerveModuleHelper {
   private Mk4iSwerveModuleHelper() {}
 
   private static DriveControllerFactory<?, Integer> getFalcon500DriveFactory(
-      Mk4ModuleConfiguration configuration) {
+      Mk4ModuleConfiguration configuration, Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> driveConfig) {
     return new Falcon500DriveControllerFactoryBuilder()
         .withVoltageCompensation(configuration.getNominalVoltage())
         .withCurrentLimit(configuration.getDriveCurrentLimit())
+        .withMotorConfigFunction(driveConfig)
         .build();
   }
 
@@ -19,7 +26,6 @@ public final class Mk4iSwerveModuleHelper {
       getFalcon500SteerFactory(Mk4ModuleConfiguration configuration) {
     return new Falcon500SteerControllerFactoryBuilder()
         .withVoltageCompensation(configuration.getNominalVoltage())
-        .withPidConstants(0.2, 0.0, 0.1)
         .withCurrentLimit(configuration.getSteerCurrentLimit())
         .build(new CanCoderFactoryBuilder().withReadingUpdatePeriod(100).build());
   }
@@ -42,12 +48,14 @@ public final class Mk4iSwerveModuleHelper {
       Mk4ModuleConfiguration configuration,
       GearRatio gearRatio,
       int driveMotorPort,
+      Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> driveConfig,
       int steerMotorPort,
+      Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> steerConfig,
       int steerEncoderPort,
       double steerOffset) {
     return new SwerveModuleFactory<>(
             gearRatio.getConfiguration(),
-            getFalcon500DriveFactory(configuration),
+            getFalcon500DriveFactory(configuration, driveConfig),
             getFalcon500SteerFactory(configuration))
         .create(
             container,
@@ -72,7 +80,9 @@ public final class Mk4iSwerveModuleHelper {
       ShuffleboardLayout container,
       GearRatio gearRatio,
       int driveMotorPort,
+      Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> driveConfig,
       int steerMotorPort,
+      Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> steerConfig,
       int steerEncoderPort,
       double steerOffset) {
     return createFalcon500(
@@ -80,7 +90,9 @@ public final class Mk4iSwerveModuleHelper {
         new Mk4ModuleConfiguration(),
         gearRatio,
         driveMotorPort,
+        driveConfig,
         steerMotorPort,
+        steerConfig,
         steerEncoderPort,
         steerOffset);
   }
@@ -100,12 +112,14 @@ public final class Mk4iSwerveModuleHelper {
       Mk4ModuleConfiguration configuration,
       GearRatio gearRatio,
       int driveMotorPort,
+      Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> driveConfig,
       int steerMotorPort,
+      Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> steerConfig,
       int steerEncoderPort,
       double steerOffset) {
     return new SwerveModuleFactory<>(
             gearRatio.getConfiguration(),
-            getFalcon500DriveFactory(configuration),
+            getFalcon500DriveFactory(configuration, driveConfig),
             getFalcon500SteerFactory(configuration))
         .create(
             driveMotorPort,

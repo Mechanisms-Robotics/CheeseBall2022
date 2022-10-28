@@ -8,6 +8,9 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.swervedrivespecialties.swervelib.*;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 public final class Falcon500SteerControllerFactoryBuilder {
   private static final int CAN_TIMEOUT_MS = 250;
   private static final int STATUS_FRAME_GENERAL_PERIOD_MS = 250;
@@ -27,13 +30,15 @@ public final class Falcon500SteerControllerFactoryBuilder {
   private double nominalVoltage = Double.NaN;
   private double currentLimit = Double.NaN;
 
-  public Falcon500SteerControllerFactoryBuilder withPidConstants(
-      double proportional, double integral, double derivative) {
-    this.proportionalConstant = proportional;
-    this.integralConstant = integral;
-    this.derivativeConstant = derivative;
-    return this;
-  }
+  private Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> configFunction;
+
+//  public Falcon500SteerControllerFactoryBuilder withPidConstants(
+//      double proportional, double integral, double derivative) {
+//    this.proportionalConstant = proportional;
+//    this.integralConstant = integral;
+//    this.derivativeConstant = derivative;
+//    return this;
+//  }
 
   public boolean hasPidConstants() {
     return Double.isFinite(proportionalConstant)
@@ -66,6 +71,11 @@ public final class Falcon500SteerControllerFactoryBuilder {
 
   public Falcon500SteerControllerFactoryBuilder withCurrentLimit(double currentLimit) {
     this.currentLimit = currentLimit;
+    return this;
+  }
+
+  public Falcon500SteerControllerFactoryBuilder withMotorConfigFunction(Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> configFunction) {
+    this.configFunction = configFunction;
     return this;
   }
 
@@ -107,11 +117,11 @@ public final class Falcon500SteerControllerFactoryBuilder {
       final double sensorVelocityCoefficient = sensorPositionCoefficient * 10.0;
 
       TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
-      if (hasPidConstants()) {
-        motorConfiguration.slot0.kP = proportionalConstant;
-        motorConfiguration.slot0.kI = integralConstant;
-        motorConfiguration.slot0.kD = derivativeConstant;
-      }
+//      if (hasPidConstants()) {
+//        motorConfiguration.slot0.kP = proportionalConstant;
+//        motorConfiguration.slot0.kI = integralConstant;
+//        motorConfiguration.slot0.kD = derivativeConstant;
+//      }
       if (hasMotionMagic()) {
         if (hasVoltageCompensation()) {
           motorConfiguration.slot0.kF =
@@ -162,6 +172,8 @@ public final class Falcon500SteerControllerFactoryBuilder {
           motor.setStatusFramePeriod(
               StatusFrameEnhanced.Status_1_General, STATUS_FRAME_GENERAL_PERIOD_MS, CAN_TIMEOUT_MS),
           "Failed to configure Falcon status frame period");
+
+      configFunction.apply(motor).apply(motorConfiguration);
 
       return new ControllerImplementation(
           motor,

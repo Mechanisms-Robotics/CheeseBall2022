@@ -10,7 +10,12 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.swervedrivespecialties.swervelib.DriveController;
 import com.swervedrivespecialties.swervelib.DriveControllerFactory;
 import com.swervedrivespecialties.swervelib.ModuleConfiguration;
+import com.swervedrivespecialties.swervelib.SimpleFeedforwardConstants;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class Falcon500DriveControllerFactoryBuilder {
   private static final double TICKS_PER_ROTATION = 2048.0;
@@ -20,6 +25,8 @@ public final class Falcon500DriveControllerFactoryBuilder {
 
   private double nominalVoltage = Double.NaN;
   private double currentLimit = Double.NaN;
+
+  private Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> configFunction;
 
   public Falcon500DriveControllerFactoryBuilder withVoltageCompensation(double nominalVoltage) {
     this.nominalVoltage = nominalVoltage;
@@ -36,6 +43,11 @@ public final class Falcon500DriveControllerFactoryBuilder {
 
   public Falcon500DriveControllerFactoryBuilder withCurrentLimit(double currentLimit) {
     this.currentLimit = currentLimit;
+    return this;
+  }
+
+  public Falcon500DriveControllerFactoryBuilder withMotorConfigFunction(Function<TalonFX, Function<TalonFXConfiguration, Consumer<SimpleFeedforwardConstants>>> configFunction) {
+    this.configFunction = configFunction;
     return this;
   }
 
@@ -83,9 +95,8 @@ public final class Falcon500DriveControllerFactoryBuilder {
               : TalonFXInvertType.CounterClockwise);
       motor.setSensorPhase(true);
 
-      // TODO: Rewrite SDS base code to make this cleaner
-      motor.config_kP(0, 0.001);
-      motor.selectProfileSlot(0, 0);
+      var feedforwardConstants = new SimpleFeedforwardConstants();
+      configFunction.apply(motor).apply(motorConfiguration).accept(feedforwardConstants);
 
       // Reduce CAN status frame rates
       CtreUtils.checkCtreError(
@@ -93,7 +104,7 @@ public final class Falcon500DriveControllerFactoryBuilder {
               StatusFrameEnhanced.Status_1_General, STATUS_FRAME_GENERAL_PERIOD_MS, CAN_TIMEOUT_MS),
           "Failed to configure Falcon status frame period");
 
-      return new ControllerImplementation(motor, sensorVelocityCoefficient);
+      return new ControllerImplementation(motor, sensorVelocityCoefficient, feedforwardConstants);
     }
   }
 
@@ -105,13 +116,15 @@ public final class Falcon500DriveControllerFactoryBuilder {
             ? Falcon500DriveControllerFactoryBuilder.this.nominalVoltage
             : 12.0;
 
-    // TODO: Rewrite SDS Base Code to Make this cleaner
-    private final SimpleMotorFeedforward wheelFeedforward =
-        new SimpleMotorFeedforward(0.319185544, 2.2544, 0.063528);
+    private final SimpleMotorFeedforward wheelFeedforward;
 
-    private ControllerImplementation(TalonFX motor, double sensorVelocityCoefficient) {
+    private ControllerImplementation(TalonFX motor, double sensorVelocityCoefficient, SimpleFeedforwardConstants feedforwardConstants) {
       this.motor = motor;
       this.sensorVelocityCoefficient = sensorVelocityCoefficient;
+      this.wheelFeedforward = new SimpleMotorFeedforward(
+              feedforwardConstants.ks,
+              feedforwardConstants.kv,
+              feedforwardConstants.ka); // 0.319185544, 2.2544, 0.063528
     }
 
     @Override
